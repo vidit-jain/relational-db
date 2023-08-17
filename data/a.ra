@@ -1,4 +1,4 @@
 LOAD Student
 Males <- SELECT Stud_sex == 0 FROM Student
-FINAL_TABLE <- PROJECT Stud_Id,Stud_age FROM Males 
-PRINT FINAL_TABLE 
+MalesInfo <- PROJECT Stud_Id,Stud_age FROM Males 
+PRINT MalesInfo 
