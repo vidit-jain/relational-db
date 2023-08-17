@@ -49,6 +49,7 @@ void executeSOURCE()
         parsedQuery.clear();
         logger.log("\nReading New Command: ");
         getline(fin, command);
+        if (command.empty()) continue;
         logger.log(command);
         cout << "Executing command: " << command << endl;
 
