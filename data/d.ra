@@ -1,0 +1,11 @@
+LOAD Student
+LOAD Marks
+Cross_StudentMarks <- CROSS Student Marks
+StudentAndMarks <- SELECT Student_Stud_Id == Marks_Stud_Id FROM Cross_StudentMarks
+MathFilter <- SELECT Maths_marks >= 70 FROM StudentAndMarks
+PhysicsFilter <- SELECT Physics_marks > 60 FROM MathFilter
+AgeLower <- SELECT Stud_age >= 16 FROM PhysicsFilter
+AgeUpper <- SELECT Stud_age <= 18 FROM AgeLower
+D_info <- PROJECT Student_Stud_Id, Maths_marks, Physics_marks, Stud_age FROM AgeUpper
+RENAME Student_Stud_Id TO Stud_Id FROM D_info
+PRINT D_info

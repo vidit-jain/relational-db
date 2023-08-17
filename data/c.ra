@@ -1,0 +1,8 @@
+LOAD Student
+LOAD Advisor
+Cross_StudentAdvisor <- CROSS Student Advisor
+StudentAndAdvisor <- SELECT Advisor_id == Adv_Id FROM Cross_StudentAdvisor
+OppositeSex <- SELECT Stud_sex != Adv_sex FROM StudentAndAdvisor
+OppositeSexInfo <- PROJECT Stud_Id, Adv_Id, Stud_sex, Adv_sex FROM OppositeSex
+PRINT OppositeSexInfo
+
