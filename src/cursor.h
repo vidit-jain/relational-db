@@ -5,6 +5,8 @@
  * at a time.
  *
  */
+#ifndef CURSOR_H
+#define CURSOR_H
 class Cursor{
     public:
     Page page;
@@ -17,3 +19,4 @@ class Cursor{
     vector<int> getNext();
     void nextPage(int pageIndex);
 };
+#endif

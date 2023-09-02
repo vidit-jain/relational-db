@@ -9,7 +9,8 @@
  * or Teams with justification and gaining approval from the TAs. 
  *</p>
  */
-
+#ifndef PAGE_H
+#define PAGE_H
 class Page{
 
     string tableName;
@@ -23,7 +24,9 @@ class Page{
     string pageName = "";
     Page();
     Page(string tableName, int pageIndex);
+    Page(string tableName, int pageIndex, int x);
     Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount);
     vector<int> getRow(int rowIndex);
     void writePage();
 };
+#endif

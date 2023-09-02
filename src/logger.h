@@ -4,7 +4,8 @@
 #include<fstream>
 
 using namespace std;
-
+#ifndef LOGGER_H
+#define LOGGER_H
 class Logger{
 
     string logFile = "log";
@@ -17,3 +18,4 @@ class Logger{
 };
 
 extern Logger logger;
+#endif
