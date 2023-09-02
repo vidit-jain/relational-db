@@ -25,20 +25,27 @@ Page::Page()
  * @param tableName 
  * @param pageIndex 
  */
-Page::Page(string tableName, int pageIndex)
+Page::Page(string tableName, int pageIndex, datatype d)
 {
     logger.log("Page::Page");
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
-    Table table = *tableCatalogue.getTable(tableName);
-    this->columnCount = table.columnCount;
-    uint maxRowCount = table.maxRowsPerBlock;
+    uint maxRowCount;
+    if (d == TABLE) {
+        Table table = *tableCatalogue.getTable(tableName);
+        this->columnCount = table.columnCount;
+        this->rowCount = table.rowsPerBlockCount[pageIndex];
+        maxRowCount = table.maxRowsPerBlock;
+    }
+    else {
+        Matrix matrix = *tableCatalogue.getMatrix(tableName);
+        tie(this->rowCount, this->columnCount) = matrix.dimsPerBlock[pageIndex];
+        maxRowCount = this->rowCount;
+    }
     vector<int> row(columnCount, 0);
     this->rows.assign(maxRowCount, row);
-
     ifstream fin(pageName, ios::in);
-    this->rowCount = table.rowsPerBlockCount[pageIndex];
     int number;
     for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {

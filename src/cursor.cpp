@@ -1,10 +1,11 @@
 #include "global.h"
 
-Cursor::Cursor(string tableName, int pageIndex)
+Cursor::Cursor(string tableName, int pageIndex, datatype d)
 {
     logger.log("Cursor::Cursor");
-    this->page = bufferManager.getPage(tableName, pageIndex);
+    this->page = bufferManager.getPage(tableName, pageIndex, d);
     this->pagePointer = 0;
+    this->d = d;
     this->tableName = tableName;
     this->pageIndex = pageIndex;
 }
@@ -39,7 +40,7 @@ vector<int> Cursor::getNext()
 void Cursor::nextPage(int pageIndex)
 {
     logger.log("Cursor::nextPage");
-    this->page = bufferManager.getPage(this->tableName, pageIndex);
+    this->page = bufferManager.getPage(this->tableName, pageIndex, this->d);
     this->pageIndex = pageIndex;
     this->pagePointer = 0;
 }

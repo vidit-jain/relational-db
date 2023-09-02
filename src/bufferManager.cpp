@@ -13,14 +13,14 @@ BufferManager::BufferManager()
  * @param pageIndex 
  * @return Page 
  */
-Page BufferManager::getPage(string tableName, int pageIndex)
+Page BufferManager::getPage(string tableName, int pageIndex, datatype d)
 {
     logger.log("BufferManager::getPage");
     string pageName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
     if (this->inPool(pageName))
         return this->getFromPool(pageName);
     else
-        return this->insertIntoPool(tableName, pageIndex);
+        return this->insertIntoPool(tableName, pageIndex, d);
 }
 
 /**
@@ -66,10 +66,10 @@ Page BufferManager::getFromPool(string pageName)
  * @param pageIndex 
  * @return Page 
  */
-Page BufferManager::insertIntoPool(string tableName, int pageIndex)
+Page BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
 {
     logger.log("BufferManager::insertIntoPool");
-    Page page(tableName, pageIndex);
+    Page page(tableName, pageIndex, d);
     if (this->pages.size() >= BLOCK_COUNT)
         pages.pop_front();
     pages.push_back(page);

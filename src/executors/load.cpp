@@ -31,7 +31,7 @@ bool semanticParseLOAD()
         }
         if (!isFileExists(parsedQuery.loadRelationName))
         {
-            cout << "SEMANTIC ERROR2: Data file doesn't exist" << endl;
+            cout << "SEMANTIC ERROR: Data file doesn't exist" << endl;
             return false;
         }
         return true;

@@ -225,7 +225,7 @@ void Table::print()
     //print headings
     this->writeRow(this->columns, cout);
 
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, TABLE);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < count; rowCounter++)
     {
@@ -272,7 +272,7 @@ void Table::makePermanent()
     //print headings
     this->writeRow(this->columns, fout);
 
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, MATRIX);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {
@@ -317,7 +317,7 @@ void Table::unload(){
 Cursor Table::getCursor()
 {
     logger.log("Table::getCursor");
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, TABLE);
     return cursor;
 }
 /**

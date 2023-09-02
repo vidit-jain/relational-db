@@ -14,6 +14,7 @@ public:
     string matrixName = "";
     long long int dimension = 0;
     uint blockCount = 0;
+    int m, concurrentBlocks;
     vector<pair<int,int>> dimsPerBlock;
     bool blockify();
     Matrix();
@@ -24,6 +25,7 @@ public:
     void print();
     void makePermanent();
     bool isPermanent();
+    bool blockDimensions();
     void getNextPage(Cursor *cursor);
     Cursor getCursor();
     void unload();
@@ -63,4 +65,5 @@ public:
         this->writeRow(row, fout);
         fout.close();
     }
+
 };

@@ -50,7 +50,7 @@ bool TableCatalogue::isTable(string tableName)
 bool TableCatalogue::isMatrix(string matrixName)
 {
     logger.log("TableCatalogue::isMatrix");
-    if (this->tables.count(matrixName))
+    if (this->matrices.count(matrixName))
         return true;
     return false;
 }

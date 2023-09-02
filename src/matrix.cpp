@@ -71,15 +71,16 @@ bool Matrix::extractDimension(string fileName)
     return false;
 }
 
-pair<int,int> blockDimensions(int dimension) {
+bool Matrix::blockDimensions() {
     int totalIntegers = (BLOCK_SIZE * 1000) / (sizeof(int));
-    int m = sqrt(totalIntegers);
+    int c = sqrt(totalIntegers);
     // avoiding precision issues
-    while ((m + 1) * (m + 1) <= totalIntegers) m++;
-    while (m * m > totalIntegers) m--;
-    int concurrentBlocks = (dimension + m - 1) / m;
-    logger.log("m: " + to_string(m) + " concurrentBlocks: " + to_string(concurrentBlocks));
-    return {m, concurrentBlocks};
+    while ((c + 1) * (c + 1) <= totalIntegers) c++;
+    while (c * c > totalIntegers) c--;
+    if (c == 0) return false;
+    this->m = c;
+    this->concurrentBlocks = (this->dimension + this->m - 1) / this->m;
+    return true;
 }
 /**
  * @brief This function splits all the rows and stores them in multiple files of
@@ -91,9 +92,7 @@ pair<int,int> blockDimensions(int dimension) {
 bool Matrix::blockify() {
     logger.log("Matrix::blockify");
     ifstream fin(this->sourceFileName, ios::in);
-    int m, concurrentBlocks;
-    tie(m, concurrentBlocks) = blockDimensions(this->dimension);
-    if (m == 0) return false;
+    if (!blockDimensions()) return false;
 
     vector<vector<vector<int>>> grids(concurrentBlocks, \
                               vector<vector<int>>(m, \
@@ -131,21 +130,31 @@ bool Matrix::blockify() {
  */
 void Matrix::print()
 {
-    logger.log("Matrix::print");
     uint count = min((long long)PRINT_COUNT, this->dimension);
+    vector<vector<int>> mat(count, vector<int>(count));
 
-    //print headings
-    Cursor cursor(this->matrixName, 0);
-    vector<int> row;
-    for (int rowCounter = 0; rowCounter < count; rowCounter++)
-    {
-        row = cursor.getNext();
-        this->writeRow(row, cout);
+    Cursor cursor(this->matrixName, 0, MATRIX);
+    int rows = (count + m - 1) / m;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < rows; j++) {
+            cursor.nextPage(i * concurrentBlocks + j);
+
+            for (int k = 0; k < min(m, (int)count - i * m); k++) {
+                vector<int> row = cursor.getNext();
+                for (int l = 0; l < min(m, (int)count - j * m); l++) {
+                    mat[i * m + k][j * m + l] = row[l];
+                }
+            }
+        }
+    }
+    for (auto& row : mat) {
+        for (auto& val : row) {
+            cout << val << " ";
+        }
+        cout << endl;
     }
     printRowCount(this->dimension);
 }
-
-
 
 /**
  * @brief This function returns one row of the matrix using the cursor object. It
@@ -178,7 +187,7 @@ void Matrix::makePermanent()
     ofstream fout(newSourceFile, ios::out);
 
     //print headings
-    Cursor cursor(this->matrixName, 0);
+    Cursor cursor(this->matrixName, 0, MATRIX);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < this->dimension; rowCounter++)
     {
@@ -223,6 +232,6 @@ void Matrix::unload(){
 Cursor Matrix::getCursor()
 {
     logger.log("Matrix::getCursor");
-    Cursor cursor(this->matrixName, 0);
+    Cursor cursor(this->matrixName, 0, MATRIX);
     return cursor;
 }

@@ -12,10 +12,11 @@ class Cursor{
     Page page;
     int pageIndex;
     string tableName;
+    datatype d;
     int pagePointer;
 
     public:
-    Cursor(string tableName, int pageIndex);
+    Cursor(string tableName, int pageIndex, datatype d);
     vector<int> getNext();
     void nextPage(int pageIndex);
 };

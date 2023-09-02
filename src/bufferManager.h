@@ -25,12 +25,12 @@ class BufferManager{
     deque<Page> pages; 
     bool inPool(string pageName);
     Page getFromPool(string pageName);
-    Page insertIntoPool(string tableName, int pageIndex);
+    Page insertIntoPool(string tableName, int pageIndex, datatype d);
 
     public:
     
     BufferManager();
-    Page getPage(string tableName, int pageIndex);
+    Page getPage(string tableName, int pageIndex, datatype d);
     void writePage(string pageName, vector<vector<int>> rows);
     void deleteFile(string tableName, int pageIndex);
     void deleteFile(string fileName);
