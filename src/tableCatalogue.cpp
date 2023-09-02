@@ -18,12 +18,31 @@ Table* TableCatalogue::getTable(string tableName)
     Table *table = this->tables[tableName];
     return table;
 }
+Matrix* TableCatalogue::getMatrix(string matrixName)
+{
+    logger.log("MatrixCatalogue::getMatrix");
+    Matrix *matrix = this->matrices[matrixName];
+    return matrix;
+}
 bool TableCatalogue::isTable(string tableName)
 {
     logger.log("TableCatalogue::isTable"); 
     if (this->tables.count(tableName))
         return true;
     return false;
+}
+
+bool TableCatalogue::isMatrix(string matrixName)
+{
+    logger.log("TableCatalogue::isMatrix");
+    if (this->matrices.count(matrixName))
+        return true;
+    return false;
+}
+
+bool TableCatalogue::isLoaded(string dataName) {
+    logger.log("TableCatalogue::isLoaded");
+    return isTable(dataName) || isMatrix(dataName);
 }
 
 bool TableCatalogue::isColumnFromTable(string columnName, string tableName)
