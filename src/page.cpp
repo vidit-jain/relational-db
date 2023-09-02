@@ -67,14 +67,14 @@ vector<int> Page::getRow(int rowIndex)
     return this->rows[rowIndex];
 }
 
-Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount)
+Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("Page::Page");
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->rows = rows;
     this->rowCount = rowCount;
-    this->columnCount = rows[0].size();
+    this->columnCount = colCount;
     this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
 }
 

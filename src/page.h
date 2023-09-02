@@ -23,7 +23,7 @@ class Page{
     string pageName = "";
     Page();
     Page(string tableName, int pageIndex);
-    Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount);
+    Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount);
     vector<int> getRow(int rowIndex);
     void writePage();
 };

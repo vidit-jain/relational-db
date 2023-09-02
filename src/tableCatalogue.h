@@ -1,4 +1,5 @@
 #include "table.h"
+#include "matrix.h"
 
 /**
  * @brief The TableCatalogue acts like an index of tables existing in the

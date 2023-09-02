@@ -128,7 +128,7 @@ bool Table::blockify()
         this->updateStatistics(row);
         if (pageCounter == this->maxRowsPerBlock)
         {
-            bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter);
+            bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage[0].size());
             this->blockCount++;
             this->rowsPerBlockCount.emplace_back(pageCounter);
             pageCounter = 0;
@@ -136,7 +136,7 @@ bool Table::blockify()
     }
     if (pageCounter)
     {
-        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter);
+        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage.size());
         this->blockCount++;
         this->rowsPerBlockCount.emplace_back(pageCounter);
         pageCounter = 0;
@@ -292,7 +292,7 @@ bool Table::isPermanent()
 {
     logger.log("Table::isPermanent");
     if (this->sourceFileName == "../data/" + this->tableName + ".csv")
-    return true;
+        return true;
     return false;
 }
 
