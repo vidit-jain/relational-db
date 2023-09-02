@@ -18,6 +18,7 @@ enum QueryType
     SELECTION,
     SORT,
     SOURCE,
+    SYMMETRY,
     UNDETERMINED
 };
 
@@ -126,6 +127,7 @@ bool syntacticParseRENAME();
 bool syntacticParseSELECTION();
 bool syntacticParseSORT();
 bool syntacticParseSOURCE();
+bool syntacticParseSYMMETRY();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);

@@ -74,6 +74,17 @@ vector<int> Page::getRow(int rowIndex)
     return this->rows[rowIndex];
 }
 
+/**
+ * @param row
+ * @param col
+ * @return Returns value at cell specified by parameters
+ */
+int Page::getCell(int row, int col) {
+    logger.log("Page::getCell");
+    assert(row < this->rowCount && col < this->columnCount);
+    return this->rows[row][col];
+}
+
 Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("Page::Page");

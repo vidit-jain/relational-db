@@ -14,6 +14,7 @@ public:
     string matrixName = "";
     long long int dimension = 0;
     uint blockCount = 0;
+    int symmetric = -1; // -1 - not computed, 0 - not symmetric, 1 - symmetric
     int m, concurrentBlocks;
     vector<pair<int,int>> dimsPerBlock;
     bool blockify();
@@ -27,6 +28,7 @@ public:
     bool isPermanent();
     bool blockDimensions();
     void getNextPage(Cursor *cursor);
+    bool symmetry();
     Cursor getCursor();
     void unload();
 

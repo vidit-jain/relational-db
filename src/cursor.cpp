@@ -31,6 +31,18 @@ vector<int> Cursor::getNext()
     }
     return result;
 }
+
+/**
+ * @brief This function returns the value at the location in the page
+ * specified by the parameters
+ * @param row
+ * @param col
+ */
+int Cursor::getCell(int row, int col) {
+    logger.log("Cursor::getCell");
+    return this->page.getCell(row, col);
+}
+
 /**
  * @brief Function that loads Page indicated by pageIndex. Now the cursor starts
  * reading from the new page.

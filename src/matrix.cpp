@@ -224,6 +224,33 @@ void Matrix::unload(){
         bufferManager.deleteFile(this->sourceFileName);
 }
 
+bool Matrix::symmetry() {
+    if (symmetric != -1) return symmetric;
+    logger.log("Concurrent: " + to_string(concurrentBlocks));
+    for (int i = 0; i < concurrentBlocks; i++) {
+        for (int j = i; j < concurrentBlocks; j++) {
+            if (i == j) {
+                Cursor a(this->matrixName, i * concurrentBlocks + j, MATRIX);
+                int lim = min((long long) this->m, this->dimension - i * m);
+                for (int k = 0; k < lim; k++)
+                    for (int l = k + 1; l < lim; l++)
+                        if (a.getCell(k, l) != a.getCell(l, k)) return symmetric = false;
+            }
+            else {
+                Cursor a(this->matrixName, i * concurrentBlocks + j, MATRIX);
+                Cursor b(this->matrixName, j * concurrentBlocks + i, MATRIX);
+                int limrow = min((long long)this->m, this->dimension - i * m);
+                int limcol = min((long long)this->m, this->dimension - j * m);
+                logger.log(to_string(limrow) + " " + to_string(limcol) + " " + to_string(i * m + j) +  " " + to_string(j * m + i));
+                for (int k = 0; k < limrow; k++)
+                    for (int l = k + 1; l < limcol; l++)
+                        if (a.getCell(k, l) != b.getCell(l, k)) return symmetric = false;
+            }
+        }
+    }
+    return symmetric = true;
+}
+
 /**
  * @brief Function that returns a cursor that reads rows from this matrix
  *

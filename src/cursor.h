@@ -19,5 +19,6 @@ class Cursor{
     Cursor(string tableName, int pageIndex, datatype d);
     vector<int> getNext();
     void nextPage(int pageIndex);
+    int getCell(int row, int col);
 };
 #endif //CURSOR_H
