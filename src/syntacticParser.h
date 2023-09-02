@@ -100,6 +100,12 @@ public:
     string sortRelationName = "";
 
     string sourceFileName = "";
+    string loadMatrixName = "";
+    string printMatrixName = "";
+    string transposeMatrixName = "";
+    string symmetryMatrixName = "";
+    string computeMatrixName = "";
+    string exportMatrixName = "";
 
     ParsedQuery();
     void clear();

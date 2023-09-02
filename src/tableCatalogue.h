@@ -11,6 +11,7 @@ class TableCatalogue
 {
 
     unordered_map<string, Table*> tables;
+    unordered_map<string, Matrix*> matrices;
 
 public:
     TableCatalogue() {}
@@ -20,5 +21,9 @@ public:
     bool isTable(string tableName);
     bool isColumnFromTable(string columnName, string tableName);
     void print();
+    void insertMatrix(Matrix* matrix);
+    void deleteMatrix(string matrixName);
+    Matrix* getMatrix(string matrixName);
+    bool isMatrix(string matrixName);
     ~TableCatalogue();
 };

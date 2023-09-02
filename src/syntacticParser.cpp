@@ -114,6 +114,13 @@ void ParsedQuery::clear()
     this->sortRelationName = "";
 
     this->sourceFileName = "";
+    this->sourceFileName = "";
+    this->loadMatrixName = "";
+    this->printMatrixName = "";
+    this->transposeMatrixName = "";
+    this->symmetryMatrixName = "";
+    this->computeMatrixName = "";
+    this->exportMatrixName = "";
 }
 
 /**
