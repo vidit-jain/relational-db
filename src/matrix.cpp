@@ -136,14 +136,11 @@ void Matrix::print()
 {
     logger.log("Matrix::print");
     uint count = min((long long)PRINT_COUNT, this->dimension);
-
-    Cursor cursor(this->matrixName, 0);
-    int currPos = 0;
-    vector<int> row;
     for (int rowCounter = 0; rowCounter < count; rowCounter++)
     {
-        row = cursor.getNext();
-        this->writeRow(row, cout, currPos);
+        for (int columnCounter = 0; columnCounter < count; columnCounter++)
+            cout << (*this)(rowCounter, columnCounter) << "\t";
+        cout << "\n";
     }
     printRowCount(this->dimension);
 }
@@ -166,7 +163,6 @@ void Matrix::getNextPage(Cursor *cursor)
         cursor->nextPage(cursor->pageIndex+1);
     }
 }
-
 
 
 /**
@@ -230,4 +226,11 @@ Cursor Matrix::getCursor()
     logger.log("Matrix::getCursor");
     Cursor cursor(this->matrixName, 0);
     return cursor;
+}
+int& Matrix::operator()(int row, int col) const {
+    int linearIndex = row * this->dimension + col;
+    int pageNum = linearIndex / this->maxValuesPerBlock;
+    int index = linearIndex % this->maxValuesPerBlock;
+    Cursor cursor(this->matrixName, pageNum);
+    return cursor.getElement(index);
 }

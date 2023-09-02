@@ -52,6 +52,38 @@ Page::Page(string tableName, int pageIndex)
 }
 
 /**
+ * @brief Construct a new Page:: Page object given the table name and page
+ * index, and number of values in the page. This constructor is used specifically for matrices.
+ * Since their rows could exceed one page, Pages that store matrix data instead just store 1 row
+ * of sequential integers to overcome this shortcoming.
+ *
+ * @param matrixName
+ * @param pageIndex
+ * @param valueCount
+ */
+Page::Page(string matrixName, int pageIndex, int valueCount)
+{
+    logger.log("Page::Page");
+    this->tableName = matrixName;
+    this->pageIndex = pageIndex;
+    this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
+    Matrix matrix = *tableCatalogue.getMatrix(matrixName);
+    this->columnCount = valueCount;
+    uint maxRowCount = 1;
+    vector<int> row(columnCount, 0);
+    this->rows.assign(maxRowCount, row);
+
+    ifstream fin(pageName, ios::in);
+    this->rowCount = 1;
+    int number;
+    for (int columnCounter = 0; columnCounter < columnCount; columnCounter++)
+    {
+        fin >> number;
+        this->rows[0][columnCounter] = number;
+    }
+    fin.close();
+}
+/**
  * @brief Get row from page indexed by rowIndex
  * 
  * @param rowIndex 
@@ -65,6 +97,14 @@ vector<int> Page::getRow(int rowIndex)
     if (rowIndex >= this->rowCount)
         return result;
     return this->rows[rowIndex];
+}
+
+int& Page::getElement(int rowIndex, int colIndex)
+{
+    logger.log("Page::getElement");
+    int result = 0;
+    assert(rowIndex >= this->rowCount || colIndex >= this->rows[rowIndex].size());
+    return this->rows[rowIndex][colIndex];
 }
 
 Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount)

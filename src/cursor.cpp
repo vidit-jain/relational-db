@@ -30,6 +30,11 @@ vector<int> Cursor::getNext()
     }
     return result;
 }
+
+int& Cursor::getElement(int index) {
+    logger.log("Cursor::getElement");
+    return this->page.getElement(0, index);
+}
 /**
  * @brief Function that loads Page indicated by pageIndex. Now the cursor starts
  * reading from the new page.

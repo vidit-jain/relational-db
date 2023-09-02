@@ -32,6 +32,7 @@ public:
     bool isPermanent();
     void getNextPage(Cursor *cursor);
     Cursor getCursor();
+    int& operator()(int row, int col) const;
     void unload();
 
     /**
