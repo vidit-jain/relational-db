@@ -72,11 +72,13 @@ bool Matrix::extractDimension(string fileName)
 }
 
 pair<int,int> blockDimensions(int dimension) {
-    int m = sqrt((BLOCK_SIZE * 1000) / (sizeof(int)));
+    int totalIntegers = (BLOCK_SIZE * 1000) / (sizeof(int));
+    int m = sqrt(totalIntegers);
     // avoiding precision issues
-    while ((m + 1) * (m + 1) <= dimension) m++;
-    while (m * m > dimension) m--;
+    while ((m + 1) * (m + 1) <= totalIntegers) m++;
+    while (m * m > totalIntegers) m--;
     int concurrentBlocks = (dimension + m - 1) / m;
+    logger.log("m: " + to_string(m) + " concurrentBlocks: " + to_string(concurrentBlocks));
     return {m, concurrentBlocks};
 }
 /**
@@ -100,7 +102,7 @@ bool Matrix::blockify() {
     int rowIndex = 0, rowsRead = 0;
     function<void()> writeToBuffer = [&] () {
         for (int i = 0; i < concurrentBlocks; i++) {
-            int colSize = (i == concurrentBlocks && this->dimension % m) ? (this->dimension % m) : m;
+            int colSize = (i == concurrentBlocks - 1 && this->dimension % m) ? (this->dimension % m) : m;
             bufferManager.writePage(this->matrixName, this->blockCount, grids[i], rowIndex, colSize);
             this->blockCount++;
             this->dimsPerBlock.emplace_back(rowIndex, colSize);
