@@ -2,6 +2,7 @@
 /**
  * @brief 
  * SYNTAX: PRINT relation_name
+ * SYNTAX: PRINT MATRIX matrix_name
  */
 bool syntacticParsePRINT()
 {
@@ -35,7 +36,6 @@ bool semanticParsePRINT()
     else {
         if (!tableCatalogue.isMatrix(parsedQuery.printMatrixName)) {
             cout << "SEMANTIC ERROR: Matrix doesn't exist" << endl;
-            cout << parsedQuery.printMatrixName << endl;
             return false;
         }
         return true;

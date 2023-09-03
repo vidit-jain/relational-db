@@ -2,6 +2,7 @@
 /**
  * @brief 
  * SYNTAX: RENAME column_name TO column_name FROM relation_name
+ * SYNTAX: RENAME MATRIX oldMatrixName newMatrixName
  */
 bool syntacticParseRENAME()
 {

@@ -28,7 +28,7 @@ bool semanticParseTRANSPOSE()
 
 void executeTRANSPOSE()
 {
-    logger.log("executeSYMMETRY");
+    logger.log("executeTRANSPOSE");
     Matrix* matrix = tableCatalogue.getMatrix(parsedQuery.transposeMatrixName);
     matrix->transpose();
     bufferManager.log();

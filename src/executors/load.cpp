@@ -2,6 +2,7 @@
 /**
  * @brief 
  * SYNTAX: LOAD relation_name
+ * SYNTAX: LOAD MATRIX matrix_name
  */
 bool syntacticParseLOAD()
 {
