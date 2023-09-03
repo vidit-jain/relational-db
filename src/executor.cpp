@@ -19,6 +19,7 @@ void executeCommand(){
         case SOURCE: executeSOURCE(); break;
         case SYMMETRY: executeSYMMETRY(); break;
         case TRANSPOSE: executeTRANSPOSE(); break;
+        case COMPUTE: executeCOMPUTE(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 

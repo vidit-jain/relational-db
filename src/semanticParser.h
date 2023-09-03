@@ -18,3 +18,4 @@ bool semanticParseSORT();
 bool semanticParseSOURCE();
 bool semanticParseSYMMETRY();
 bool semanticParseTRANSPOSE();
+bool semanticParseCOMPUTE();

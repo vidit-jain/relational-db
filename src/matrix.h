@@ -20,7 +20,7 @@ public:
     bool blockify();
     Matrix();
     Matrix(string matrixName);
-    Matrix(string matrixName, long long int dimension);
+    Matrix(string matrixName, Matrix* originalMatrix);
     bool extractDimension(string fileName);
     bool load();
     void print();
@@ -32,6 +32,7 @@ public:
     bool symmetry();
     Cursor getCursor();
     void unload();
+    void compute(string originalMatrix);
     void rename(string newName);
 
     /**

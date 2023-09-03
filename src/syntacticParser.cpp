@@ -31,6 +31,8 @@ bool syntacticParse()
         return syntacticParseSYMMETRY();
     else if(possibleQueryType == "TRANSPOSE")
         return syntacticParseTRANSPOSE();
+    else if(possibleQueryType == "COMPUTE")
+        return syntacticParseCOMPUTE();
     else
     {
         string resultantRelationName = possibleQueryType;

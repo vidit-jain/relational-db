@@ -13,7 +13,7 @@ enum datatype {TABLE, MATRIX};
 class Page{
 
     string tableName;
-    string pageIndex;
+    int pageIndex;
     int columnCount;
     int rowCount;
     int dirty = 0;
@@ -30,5 +30,8 @@ class Page{
     void transpose(Page* p);
     void transpose();
     bool isDirty();
+    void subtractTranspose(Page* p);
+    void subtractTranspose();
+    void setPageName(string newName);
     void writePage();
 };

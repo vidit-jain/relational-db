@@ -31,13 +31,17 @@ Matrix::Matrix(string matrixName)
  * @param matrixName
  * @param dimension
  */
-Matrix::Matrix(string matrixName, long long int dimension)
+Matrix::Matrix(string matrixName, Matrix* originalMatrix)
 {
     logger.log("Matrix::Matrix");
     this->sourceFileName = "../data/temp/" + matrixName + ".csv";
     this->matrixName = matrixName;
-    this->dimension = dimension;
-    //this->maxRowsPerBlock = (uint)((BLOCK_SIZE * 1000) / (sizeof(int) * columnCount));
+    this->dimension = originalMatrix->dimension;
+    this->blockCount = originalMatrix->blockCount;
+    this->symmetric = originalMatrix->symmetric;
+    this->m = originalMatrix->m;
+    this->concurrentBlocks = originalMatrix->concurrentBlocks;
+    this->dimsPerBlock = originalMatrix->dimsPerBlock;
 }
 
 /**
@@ -264,7 +268,7 @@ bool Matrix::symmetry() {
 
 void Matrix::transpose() {
     logger.log("Matrix::transpose");
-//    if (symmetric == 1) return;
+    if (symmetric == 1) return;
     for (int i = 0; i < concurrentBlocks; i++) {
         Page* a = bufferManager.getPage(this->matrixName, i * concurrentBlocks + i, MATRIX);
         a->transpose();
@@ -272,6 +276,23 @@ void Matrix::transpose() {
             Page* a = bufferManager.getPage(this->matrixName, i * concurrentBlocks + j, MATRIX);
             Page* b = bufferManager.getPage(this->matrixName, j * concurrentBlocks + i, MATRIX);
             a->transpose(b);
+        }
+    }
+}
+
+void Matrix::compute(string originalMatrix) {
+    logger.log("Matrix::compute");
+    for (int i = 0; i < concurrentBlocks; i++) {
+        Page a = *bufferManager.getPage(originalMatrix, i * concurrentBlocks + i, MATRIX);
+        a.subtractTranspose();
+        a.setPageName(this->matrixName);
+        a.writePage();
+        for (int j = i + 1; j < concurrentBlocks; j++) {
+            Page a = *bufferManager.getPage(originalMatrix, i * concurrentBlocks + j, MATRIX);
+            Page b = *bufferManager.getPage(originalMatrix, j * concurrentBlocks + i, MATRIX);
+            a.subtractTranspose(&b);
+            a.setPageName(this->matrixName); a.writePage();
+            b.setPageName(this->matrixName); b.writePage();
         }
     }
 }

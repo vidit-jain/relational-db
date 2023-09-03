@@ -5,6 +5,7 @@ using namespace std;
 enum QueryType
 {
     CLEAR,
+    COMPUTE,
     CROSS,
     DISTINCT,
     EXPORT,
@@ -132,6 +133,7 @@ bool syntacticParseSORT();
 bool syntacticParseSOURCE();
 bool syntacticParseSYMMETRY();
 bool syntacticParseTRANSPOSE();
+bool syntacticParseCOMPUTE();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);

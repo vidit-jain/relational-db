@@ -86,16 +86,18 @@ int Page::getCell(int row, int col) {
     assert(row < this->rowCount && col < this->columnCount);
     return this->rows[row][col];
 }
-
+void Page::setPageName(string newName) {
+    this->tableName = newName;
+    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(this->pageIndex);
+}
 Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("Page::Page");
-    this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->rows = rows;
     this->rowCount = rowCount;
     this->columnCount = colCount;
-    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
+    setPageName(tableName);
 }
 
 /**
@@ -117,6 +119,7 @@ void Page::writePage()
         fout << endl;
     }
     fout.close();
+    this->dirty = 0;
 }
 
 /**
@@ -135,6 +138,25 @@ void Page::transpose() {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = i + 1; j < this->columnCount; j++) {
             swap(this->rows[i][j], this->rows[j][i]);
+        }
+    }
+    this->dirty = 1;
+}
+void Page::subtractTranspose(Page* p) {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = 0; j < this->columnCount; j++) {
+            this->rows[i][j] -= p->rows[j][i];
+            p->rows[j][i] = -this->rows[i][j];
+        }
+    }
+    this->dirty = 1, p->dirty = 1;
+}
+
+void Page::subtractTranspose() {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = i; j < this->columnCount; j++) {
+            this->rows[i][j] -= this->rows[j][i];
+            this->rows[j][i] = -this->rows[i][j];
         }
     }
     this->dirty = 1;
