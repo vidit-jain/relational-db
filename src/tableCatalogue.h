@@ -20,7 +20,7 @@ public:
     Table* getTable(string tableName);
     bool isTable(string tableName);
     bool isColumnFromTable(string columnName, string tableName);
-    void print();
+    void print(string type);
     void insertMatrix(Matrix* matrix);
     void renameMatrix(string oldName, string newName);
     void deleteMatrix(string matrixName);

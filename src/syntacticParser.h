@@ -54,6 +54,7 @@ class ParsedQuery
 
 public:
     QueryType queryType = UNDETERMINED;
+    string queryData = "";
 
     string clearRelationName = "";
 

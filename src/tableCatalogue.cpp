@@ -67,27 +67,30 @@ bool TableCatalogue::isColumnFromTable(string columnName, string tableName)
     return false;
 }
 
-void TableCatalogue::print()
+void TableCatalogue::print(string type)
 {
-    logger.log("TableCatalogue::print"); 
-    cout << "\nRELATIONS" << endl;
+    logger.log("TableCatalogue::print");
+    if (type == "TABLES") {
+        cout << "\nRELATIONS" << endl;
 
-    int rowCount = 0;
-    for (auto rel : this->tables)
-    {
-        cout << rel.first << endl;
-        rowCount++;
+        int rowCount = 0;
+        for (auto rel : this->tables)
+        {
+            cout << rel.first << endl;
+            rowCount++;
+        }
+        printRowCount(rowCount);
     }
-    printRowCount(rowCount);
-    cout << "\nMATRICES" << endl;
-
-    rowCount = 0;
-    for (auto mat : this->matrices)
-    {
-        cout << mat.first << endl;
-        rowCount++;
+    else {
+        cout << "\nMATRICES" << endl;
+        int rowCount = 0;
+        for (auto mat : this->matrices)
+        {
+            cout << mat.first << endl;
+            rowCount++;
+        }
+        printRowCount(rowCount);
     }
-    printRowCount(rowCount);
 }
 
 void TableCatalogue::renameMatrix(string oldName, string newName) {

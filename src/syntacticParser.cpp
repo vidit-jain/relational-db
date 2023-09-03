@@ -129,6 +129,7 @@ void ParsedQuery::clear()
     this->exportMatrixName = "";
     this->renameFromMatrixName = "";
     this->renameToMatrixName = "";
+    this->queryData = "";
 }
 
 /**
