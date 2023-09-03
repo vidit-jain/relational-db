@@ -27,7 +27,5 @@ public:
     void insertMatrix(Matrix* matrix);
     void renameMatrix(string oldName, string newName);
     void deleteMatrix(string matrixName);
-    Matrix* getMatrix(string matrixName);
-    bool isMatrix(string matrixName);
     ~TableCatalogue();
 };
