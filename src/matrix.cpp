@@ -61,6 +61,12 @@ bool Matrix::load()
     return false;
 }
 
+/**
+ * Opens fileName, and computes N, the dimension of the matrix being loaded
+ * @param fileName
+ * @return true if it successfully reads a line to determine dimension
+ * @return false otherwise, indicates failure and matrix won't be loaded
+ */
 bool Matrix::extractDimension(string fileName)
 {
     logger.log("Matrix::extractDimension");
@@ -75,6 +81,12 @@ bool Matrix::extractDimension(string fileName)
     return false;
 }
 
+/**
+ * @brief Calculated the largest M x M submatrix that can be stored in a block,
+ * and the number of blocks that will be in each row.
+ * @return true if block size is big enough to store an integer
+ * @return false otherwise, indicating it can't be blockified
+ */
 bool Matrix::blockDimensions() {
     int totalIntegers = (BLOCK_SIZE * 1000) / (sizeof(int));
     int c = sqrt(totalIntegers);
@@ -86,6 +98,7 @@ bool Matrix::blockDimensions() {
     this->concurrentBlocks = (this->dimension + this->m - 1) / this->m;
     return true;
 }
+
 /**
  * @brief This function splits all the rows and stores them in multiple files of
  * one block size.
@@ -175,7 +188,6 @@ void Matrix::getNextPage(Cursor *cursor)
 /**
  * @brief called when EXPORT command is invoked to move source file to "data"
  * folder.
- *
  */
 void Matrix::makePermanent()
 {
@@ -230,7 +242,10 @@ void Matrix::unload(){
     if (!isPermanent())
         bufferManager.deleteFile(this->sourceFileName);
 }
-
+/**
+ * Renames the Matrix to the newName specified. Renames all pages in memory and on disk
+ * @param newName
+ */
 void Matrix::rename(string newName){
     logger.log("Matrix::rename");
     bufferManager.renamePagesInMemory(this->matrixName, newName);
@@ -239,6 +254,12 @@ void Matrix::rename(string newName){
     this->matrixName = newName;
 }
 
+/**
+ * @brief Goes through the entire matrix to check if it's symmetric. If checked before,
+ * the value is cached and used instead of going through the matrix for subsequent calls
+ * @return true if symmetric
+ * @return false if asymmetric
+ */
 bool Matrix::symmetry() {
     logger.log("Matrix::symmetry");
     if (symmetric != -1) return symmetric;
@@ -266,6 +287,9 @@ bool Matrix::symmetry() {
     return symmetric = true;
 }
 
+/**
+ * @brief Tranposes the matrix in place
+ */
 void Matrix::transpose() {
     logger.log("Matrix::transpose");
     if (symmetric == 1) return;
@@ -280,6 +304,12 @@ void Matrix::transpose() {
     }
 }
 
+/**
+ * Ran only for new matrices with no pages associated to it. Accesses pages of the
+ * originalMatrix it was copied off of, and performs the computation, and writes a duplicate
+ * page with it's own name, leaving the original page unchanged.
+ * @param originalMatrix
+ */
 void Matrix::compute(string originalMatrix) {
     logger.log("Matrix::compute");
     for (int i = 0; i < concurrentBlocks; i++) {
@@ -296,6 +326,7 @@ void Matrix::compute(string originalMatrix) {
         }
     }
 }
+
 /**
  * @brief Function that returns a cursor that reads rows from this matrix
  *

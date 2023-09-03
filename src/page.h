@@ -34,4 +34,5 @@ class Page{
     void subtractTranspose();
     void setPageName(string newName);
     void writePage();
+    string getTableName();
 };

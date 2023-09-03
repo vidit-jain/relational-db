@@ -70,7 +70,14 @@ public:
         this->writeRow(row, fout);
         fout.close();
     }
-
+/**
+ * @brief static function that takes a vector of vectors and prints the number of rows
+ * required to fout
+ * @tparam T current usages include int
+ * @param rows
+ * @param rowCount
+ * @param fout
+ */
     template<typename T>
     void writeRows(vector<vector<T>> rows, int rowCount, ostream& fout) {
         for (int i = 0; i < rowCount; i++) writeRow(rows[i], fout);

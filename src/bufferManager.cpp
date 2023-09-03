@@ -12,7 +12,7 @@ BufferManager::BufferManager()
  *
  * @param tableName 
  * @param pageIndex 
- * @return Page 
+ * @return Page*
  */
 Page* BufferManager::getPage(string tableName, int pageIndex, datatype d)
 {
@@ -48,7 +48,7 @@ bool BufferManager::inPool(string pageName)
  * pool.
  *
  * @param pageName 
- * @return Page 
+ * @return Page*
  */
 Page* BufferManager::getFromPool(string pageName)
 {
@@ -65,7 +65,7 @@ Page* BufferManager::getFromPool(string pageName)
  *
  * @param tableName 
  * @param pageIndex 
- * @return Page 
+ * @return Page*
  */
 Page* BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
 {
@@ -101,7 +101,7 @@ void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int
 }
 
 /**
- * @brief Deletes file names fileName
+ * @brief Deletes file named fileName
  *
  * @param fileName 
  */
@@ -112,6 +112,13 @@ void BufferManager::deleteFile(string fileName)
         logger.log("BufferManager::deleteFile: Err");
         else logger.log("BufferManager::deleteFile: Success");
 }
+
+/**
+ * @brief Renames file from oldName to newName
+ *
+ * @param oldName
+ * @param newName
+ */
 void BufferManager::renameFile(string oldName, string newName)
 {
 
@@ -120,10 +127,17 @@ void BufferManager::renameFile(string oldName, string newName)
     else logger.log("BufferManager::renameFile: Success");
 }
 
+/**
+ * @brief Goes through pages in the deque and renames pages from oldName to newName
+ *
+ * @param oldName
+ * @param newName
+ */
+
 void BufferManager::renamePagesInMemory(string oldName, string newName) {
     for (auto& page : this->pages) {
-        if (page.pageName == oldName)
-            page.pageName = newName;
+        if (page.getTableName() == oldName)
+            page.setPageName(newName);
     }
 }
 
@@ -141,6 +155,14 @@ void BufferManager::deleteFile(string tableName, int pageIndex)
     this->deleteFile(fileName);
 }
 
+/**
+ * @brief Overloaded function that calls renameFile(oldName, newName) by constructing
+ * the fileName from the file names and pageIndex.
+ *
+ * @param oldName
+ * @param newName
+ * @param pageIndex
+ */
 void BufferManager::renameFile(string oldName, string newName, int pageIndex) {
     logger.log("BufferManager::deleteFile");
     string oldFileName = "../data/temp/"+ oldName + "_Page" + to_string(pageIndex);
@@ -148,12 +170,20 @@ void BufferManager::renameFile(string oldName, string newName, int pageIndex) {
     this->renameFile(oldFileName, newFileName);
 }
 
+/**
+ * @brief Logs the stats of the number of blocks read, written and accessed. Doesn't
+ * count reads from memory as a read.
+ */
 void BufferManager::log() {
-    cout << "Number of blocks read: " << this->blocksRead << endl;
+    cout << "\nNumber of blocks read: " << this->blocksRead << endl;
     cout << "Number of blocks written: " << this->blocksWritten << endl;
     cout << "Number of blocks accessed: " << this->blocksRead + this->blocksWritten << endl;
     clearStats();
 }
+
+/**
+ * @brief Sets the block statistics to 0
+ */
 void BufferManager::clearStats() {
     this->blocksRead = 0;
     this->blocksWritten = 0;

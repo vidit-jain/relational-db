@@ -86,10 +86,16 @@ int Page::getCell(int row, int col) {
     assert(row < this->rowCount && col < this->columnCount);
     return this->rows[row][col];
 }
+
+/**
+ * @brief Sets tableName of the page to a new table name, recreates the new pageName for the page.
+ * @param newName
+ */
 void Page::setPageName(string newName) {
     this->tableName = newName;
     this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(this->pageIndex);
 }
+
 Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("Page::Page");
@@ -134,6 +140,9 @@ void Page::transpose(Page* p) {
     this->dirty = 1, p->dirty = 1;
 }
 
+/**
+ * @brief Flips submatrix in place
+ */
 void Page::transpose() {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = i + 1; j < this->columnCount; j++) {
@@ -142,6 +151,11 @@ void Page::transpose() {
     }
     this->dirty = 1;
 }
+
+/**
+ * @brief Should only be used between corresponding blocks in the matrix. Swaps the values between them to
+ * perform a transpose
+ */
 void Page::subtractTranspose(Page* p) {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = 0; j < this->columnCount; j++) {
@@ -152,6 +166,10 @@ void Page::subtractTranspose(Page* p) {
     this->dirty = 1, p->dirty = 1;
 }
 
+/**
+ * @brief Should only be used between corresponding blocks int he matrix. Performs a transpose and subtracts
+ * the value to get the resultant.
+ */
 void Page::subtractTranspose() {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = i; j < this->columnCount; j++) {
@@ -161,10 +179,17 @@ void Page::subtractTranspose() {
     }
     this->dirty = 1;
 }
+
 /**
  * @brief returns if a page is Dirty or not (has been changed and needs to be
  * written to disk).
  */
 bool Page::isDirty() {
     return this->dirty;
+}
+/**
+ * @brief returns the table name the page belongs to.
+ */
+string Page::getTableName() {
+    return this->tableName;
 }

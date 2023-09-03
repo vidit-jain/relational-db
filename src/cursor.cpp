@@ -37,6 +37,7 @@ vector<int> Cursor::getNext()
  * specified by the parameters
  * @param row
  * @param col
+ * @return value at cell specified
  */
 int Cursor::getCell(int row, int col) {
     logger.log("Cursor::getCell");

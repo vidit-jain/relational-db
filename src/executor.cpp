@@ -4,6 +4,7 @@ void executeCommand(){
 
     switch(parsedQuery.queryType){
         case CLEAR: executeCLEAR(); break;
+        case COMPUTE: executeCOMPUTE(); break;
         case CROSS: executeCROSS(); break;
         case DISTINCT: executeDISTINCT(); break;
         case EXPORT: executeEXPORT(); break;
@@ -19,7 +20,6 @@ void executeCommand(){
         case SOURCE: executeSOURCE(); break;
         case SYMMETRY: executeSYMMETRY(); break;
         case TRANSPOSE: executeTRANSPOSE(); break;
-        case COMPUTE: executeCOMPUTE(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 
