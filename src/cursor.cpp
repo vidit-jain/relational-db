@@ -3,7 +3,7 @@
 Cursor::Cursor(string tableName, int pageIndex, datatype d)
 {
     logger.log("Cursor::Cursor");
-    this->page = bufferManager.getPage(tableName, pageIndex, d);
+    this->page = *bufferManager.getPage(tableName, pageIndex, d);
     this->pagePointer = 0;
     this->d = d;
     this->tableName = tableName;
@@ -52,7 +52,7 @@ int Cursor::getCell(int row, int col) {
 void Cursor::nextPage(int pageIndex)
 {
     logger.log("Cursor::nextPage");
-    this->page = bufferManager.getPage(this->tableName, pageIndex, this->d);
+    this->page = *bufferManager.getPage(this->tableName, pageIndex, this->d);
     this->pageIndex = pageIndex;
     this->pagePointer = 0;
 }

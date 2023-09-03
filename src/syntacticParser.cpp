@@ -29,6 +29,8 @@ bool syntacticParse()
         return syntacticParseSOURCE();
     else if(possibleQueryType == "CHECKSYMMETRY")
         return syntacticParseSYMMETRY();
+    else if(possibleQueryType == "TRANSPOSE")
+        return syntacticParseTRANSPOSE();
     else
     {
         string resultantRelationName = possibleQueryType;

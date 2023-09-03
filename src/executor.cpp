@@ -18,6 +18,7 @@ void executeCommand(){
         case SORT: executeSORT(); break;
         case SOURCE: executeSOURCE(); break;
         case SYMMETRY: executeSYMMETRY(); break;
+        case TRANSPOSE: executeTRANSPOSE(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 

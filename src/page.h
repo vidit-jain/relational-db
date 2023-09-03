@@ -16,6 +16,7 @@ class Page{
     string pageIndex;
     int columnCount;
     int rowCount;
+    int dirty = 0;
     vector<vector<int>> rows;
 
     public:
@@ -26,6 +27,8 @@ class Page{
     Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount);
     vector<int> getRow(int rowIndex);
     int getCell(int row, int col);
+    void transpose(Page* p);
     void transpose();
+    bool isDirty();
     void writePage();
 };

@@ -229,14 +229,15 @@ void Matrix::unload(){
 
 void Matrix::rename(string newName){
     logger.log("Matrix::rename");
+    bufferManager.renamePagesInMemory(this->matrixName, newName);
     for (int pageCounter = 0; pageCounter < this->blockCount; pageCounter++)
         bufferManager.renameFile(this->matrixName, newName, pageCounter);
     this->matrixName = newName;
 }
 
 bool Matrix::symmetry() {
+    logger.log("Matrix::symmetry");
     if (symmetric != -1) return symmetric;
-    logger.log("Concurrent: " + to_string(concurrentBlocks));
     for (int i = 0; i < concurrentBlocks; i++) {
         for (int j = i; j < concurrentBlocks; j++) {
             if (i == j) {
@@ -261,6 +262,19 @@ bool Matrix::symmetry() {
     return symmetric = true;
 }
 
+void Matrix::transpose() {
+    logger.log("Matrix::transpose");
+//    if (symmetric == 1) return;
+    for (int i = 0; i < concurrentBlocks; i++) {
+        Page* a = bufferManager.getPage(this->matrixName, i * concurrentBlocks + i, MATRIX);
+        a->transpose();
+        for (int j = i + 1; j < concurrentBlocks; j++) {
+            Page* a = bufferManager.getPage(this->matrixName, i * concurrentBlocks + j, MATRIX);
+            Page* b = bufferManager.getPage(this->matrixName, j * concurrentBlocks + i, MATRIX);
+            a->transpose(b);
+        }
+    }
+}
 /**
  * @brief Function that returns a cursor that reads rows from this matrix
  *

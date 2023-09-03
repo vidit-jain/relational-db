@@ -10,6 +10,7 @@ Page::Page()
     this->pageIndex = -1;
     this->rowCount = 0;
     this->columnCount = 0;
+    this->dirty = 0;
     this->rows.clear();
 }
 
@@ -28,6 +29,7 @@ Page::Page()
 Page::Page(string tableName, int pageIndex, datatype d)
 {
     logger.log("Page::Page");
+    this->dirty = 0;
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
@@ -97,17 +99,6 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
 }
 
 /**
- * @brief transposes the submatrix stored in the page
- */
-void Page::transpose() {
-    vector<vector<int>> transposed(this->columnCount, vector<int>(this->rowCount));
-    for (int i = 0; i < this->rowCount; i++)
-        for (int j = 0; j < this->columnCount; j++)
-            transposed[j][i] = this->rows[i][j];
-    this->rows = transposed;
-    swap(this->columnCount, this->rowCount);
-}
-/**
  * @brief writes current page contents to file.
  * 
  */
@@ -126,4 +117,32 @@ void Page::writePage()
         fout << endl;
     }
     fout.close();
+}
+
+/**
+ * @brief transposes the submatrix stored in the page
+ */
+void Page::transpose(Page* p) {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = 0; j < this->columnCount; j++) {
+            swap(this->rows[i][j], p->rows[j][i]);
+        }
+    }
+    this->dirty = 1, p->dirty = 1;
+}
+
+void Page::transpose() {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = i + 1; j < this->columnCount; j++) {
+            swap(this->rows[i][j], this->rows[j][i]);
+        }
+    }
+    this->dirty = 1;
+}
+/**
+ * @brief returns if a page is Dirty or not (has been changed and needs to be
+ * written to disk).
+ */
+bool Page::isDirty() {
+    return this->dirty;
 }

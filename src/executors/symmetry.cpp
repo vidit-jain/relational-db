@@ -20,7 +20,7 @@ bool semanticParseSYMMETRY()
     logger.log("semanticParseSYMMETRY");
     if (!tableCatalogue.isMatrix(parsedQuery.symmetryMatrixName))
     {
-        cout << "SEMANTIC ERROR: Relation doesn't exist" << endl;
+        cout << "SEMANTIC ERROR: Matrix doesn't exist" << endl;
         return false;
     }
     return true;
