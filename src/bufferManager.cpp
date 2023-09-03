@@ -3,6 +3,7 @@
 BufferManager::BufferManager()
 {
     logger.log("BufferManager::BufferManager");
+    this->blocksWritten = this->blocksRead = 0;
 }
 
 /**
@@ -69,6 +70,7 @@ Page BufferManager::getFromPool(string pageName)
 Page BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
 {
     logger.log("BufferManager::insertIntoPool");
+    this->blocksRead++;
     Page page(tableName, pageIndex, d);
     if (this->pages.size() >= BLOCK_COUNT)
         pages.pop_front();
@@ -88,6 +90,7 @@ Page BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
 void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("BufferManager::writePage");
+    this->blocksWritten++;
     Page page(tableName, pageIndex, rows, rowCount, colCount);
     page.writePage();
 }
@@ -132,4 +135,15 @@ void BufferManager::renameFile(string oldName, string newName, int pageIndex) {
     string oldFileName = "../data/temp/"+ oldName + "_Page" + to_string(pageIndex);
     string newFileName = "../data/temp/"+ newName + "_Page" + to_string(pageIndex);
     this->renameFile(oldFileName, newFileName);
+}
+
+void BufferManager::log() {
+    cout << "Number of blocks read: " << this->blocksRead << endl;
+    cout << "Number of blocks written: " << this->blocksWritten << endl;
+    cout << "Number of blocks accessed: " << this->blocksRead + this->blocksWritten << endl;
+    clearStats();
+}
+void BufferManager::clearStats() {
+    this->blocksRead = 0;
+    this->blocksWritten = 0;
 }
