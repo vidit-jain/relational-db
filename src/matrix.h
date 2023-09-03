@@ -26,6 +26,7 @@ public:
     void print();
     void makePermanent();
     bool isPermanent();
+    void transpose();
     bool blockDimensions();
     void getNextPage(Cursor *cursor);
     bool symmetry();
@@ -68,4 +69,8 @@ public:
         fout.close();
     }
 
+    template<typename T>
+    void writeRows(vector<vector<T>> rows, int rowCount, ostream& fout) {
+        for (int i = 0; i < rowCount; i++) writeRow(rows[i], fout);
+    }
 };

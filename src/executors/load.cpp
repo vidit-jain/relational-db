@@ -8,7 +8,7 @@ bool syntacticParseLOAD()
     logger.log("syntacticParseLOAD");
     if (tokenizedQuery.size() == 2) {
         parsedQuery.queryType = LOAD;
-        parsedQuery.loadMatrixName = tokenizedQuery[1];
+        parsedQuery.loadRelationName = tokenizedQuery[1];
     }
     else if (tokenizedQuery.size() == 3 && tokenizedQuery[1] == "MATRIX") {
         parsedQuery.queryType = LOAD;

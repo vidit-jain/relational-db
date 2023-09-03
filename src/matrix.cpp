@@ -147,12 +147,7 @@ void Matrix::print()
             }
         }
     }
-    for (auto& row : mat) {
-        for (auto& val : row) {
-            cout << val << " ";
-        }
-        cout << endl;
-    }
+    writeRows(mat, count, cout);
     printRowCount(this->dimension);
 }
 
@@ -186,13 +181,21 @@ void Matrix::makePermanent()
     string newSourceFile = "../data/" + this->matrixName + ".csv";
     ofstream fout(newSourceFile, ios::out);
 
-    //print headings
+    vector<vector<int>> mat(m, vector<int>(this->dimension));
     Cursor cursor(this->matrixName, 0, MATRIX);
-    vector<int> row;
-    for (int rowCounter = 0; rowCounter < this->dimension; rowCounter++)
-    {
-        row = cursor.getNext();
-        this->writeRow(row, fout);
+    for (int i = 0; i < concurrentBlocks; i++) {
+        for (int j = 0; j < concurrentBlocks; j++) {
+            cursor.nextPage(i * concurrentBlocks + j);
+
+            for (int k = 0; k < min(m, (int)this->dimension - i * m); k++) {
+                vector<int> row = cursor.getNext();
+                for (int l = 0; l < min(m, (int)this->dimension - j * m); l++) {
+                    mat[k][j * m + l] = row[l];
+                }
+            }
+        }
+        int rowCount = min(m, (int)this->dimension - i * m);
+        this->writeRows(mat, rowCount, fout);
     }
     fout.close();
 }
