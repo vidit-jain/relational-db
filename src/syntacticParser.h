@@ -107,6 +107,8 @@ public:
     string symmetryMatrixName = "";
     string computeMatrixName = "";
     string exportMatrixName = "";
+    string renameFromMatrixName = "";
+    string renameToMatrixName = "";
 
     ParsedQuery();
     void clear();

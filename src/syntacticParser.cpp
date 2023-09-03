@@ -123,6 +123,8 @@ void ParsedQuery::clear()
     this->symmetryMatrixName = "";
     this->computeMatrixName = "";
     this->exportMatrixName = "";
+    this->renameFromMatrixName = "";
+    this->renameToMatrixName = "";
 }
 
 /**

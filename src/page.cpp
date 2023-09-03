@@ -97,6 +97,17 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
 }
 
 /**
+ * @brief transposes the submatrix stored in the page
+ */
+void Page::transpose() {
+    vector<vector<int>> transposed(this->columnCount, vector<int>(this->rowCount));
+    for (int i = 0; i < this->rowCount; i++)
+        for (int j = 0; j < this->columnCount; j++)
+            transposed[j][i] = this->rows[i][j];
+    this->rows = transposed;
+    swap(this->columnCount, this->rowCount);
+}
+/**
  * @brief writes current page contents to file.
  * 
  */

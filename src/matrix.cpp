@@ -227,6 +227,13 @@ void Matrix::unload(){
         bufferManager.deleteFile(this->sourceFileName);
 }
 
+void Matrix::rename(string newName){
+    logger.log("Matrix::rename");
+    for (int pageCounter = 0; pageCounter < this->blockCount; pageCounter++)
+        bufferManager.renameFile(this->matrixName, newName, pageCounter);
+    this->matrixName = newName;
+}
+
 bool Matrix::symmetry() {
     if (symmetric != -1) return symmetric;
     logger.log("Concurrent: " + to_string(concurrentBlocks));

@@ -104,6 +104,14 @@ void BufferManager::deleteFile(string fileName)
         logger.log("BufferManager::deleteFile: Err");
         else logger.log("BufferManager::deleteFile: Success");
 }
+void BufferManager::renameFile(string oldName, string newName)
+{
+
+    if (rename(oldName.c_str(), newName.c_str()))
+        logger.log("BufferManager::renameFile: Err");
+    else logger.log("BufferManager::renameFile: Success");
+}
+
 
 /**
  * @brief Overloaded function that calls deleteFile(fileName) by constructing
@@ -117,4 +125,11 @@ void BufferManager::deleteFile(string tableName, int pageIndex)
     logger.log("BufferManager::deleteFile");
     string fileName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
     this->deleteFile(fileName);
+}
+
+void BufferManager::renameFile(string oldName, string newName, int pageIndex) {
+    logger.log("BufferManager::deleteFile");
+    string oldFileName = "../data/temp/"+ oldName + "_Page" + to_string(pageIndex);
+    string newFileName = "../data/temp/"+ newName + "_Page" + to_string(pageIndex);
+    this->renameFile(oldFileName, newFileName);
 }

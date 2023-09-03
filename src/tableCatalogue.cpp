@@ -90,6 +90,13 @@ void TableCatalogue::print()
     printRowCount(rowCount);
 }
 
+void TableCatalogue::renameMatrix(string oldName, string newName) {
+    auto nodeHandler = matrices.extract(oldName);
+    nodeHandler.key() = newName;
+    matrices.insert(std::move(nodeHandler));
+    matrices[newName]->rename(newName);
+}
+
 TableCatalogue::~TableCatalogue(){
     logger.log("TableCatalogue::~TableCatalogue"); 
     for(auto table: this->tables){
