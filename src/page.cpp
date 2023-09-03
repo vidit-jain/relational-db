@@ -10,6 +10,7 @@ Page::Page()
     this->pageIndex = -1;
     this->rowCount = 0;
     this->columnCount = 0;
+    this->dirty = 0;
     this->rows.clear();
 }
 
@@ -25,20 +26,29 @@ Page::Page()
  * @param tableName 
  * @param pageIndex 
  */
-Page::Page(string tableName, int pageIndex)
+Page::Page(string tableName, int pageIndex, datatype d)
 {
     logger.log("Page::Page");
+    this->dirty = 0;
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
-    Table table = *tableCatalogue.getTable(tableName);
-    this->columnCount = table.columnCount;
-    uint maxRowCount = table.maxRowsPerBlock;
+    uint maxRowCount;
+    if (d == TABLE) {
+        Table table = *tableCatalogue.getTable(tableName);
+        this->columnCount = table.columnCount;
+        this->rowCount = table.rowsPerBlockCount[pageIndex];
+        maxRowCount = table.maxRowsPerBlock;
+    }
+    else {
+        Matrix matrix = *tableCatalogue.getMatrix(tableName);
+        tie(this->rowCount, this->columnCount) = matrix.dimsPerBlock[pageIndex];
+        maxRowCount = this->rowCount;
+    }
     vector<int> row(columnCount, 0);
     this->rows.assign(maxRowCount, row);
-
+    blockStats.ReadBlock();
     ifstream fin(pageName, ios::in);
-    this->rowCount = table.rowsPerBlockCount[pageIndex];
     int number;
     for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {
@@ -51,38 +61,6 @@ Page::Page(string tableName, int pageIndex)
     fin.close();
 }
 
-/**
- * @brief Construct a new Page:: Page object given the table name and page
- * index, and number of values in the page. This constructor is used specifically for matrices.
- * Since their rows could exceed one page, Pages that store matrix data instead just store 1 row
- * of sequential integers to overcome this shortcoming.
- *
- * @param matrixName
- * @param pageIndex
- * @param valueCount
- */
-Page::Page(string matrixName, int pageIndex, int valueCount)
-{
-    logger.log("Page::Page");
-    this->tableName = matrixName;
-    this->pageIndex = pageIndex;
-    this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
-    Matrix matrix = *tableCatalogue.getMatrix(matrixName);
-    this->columnCount = valueCount;
-    uint maxRowCount = 1;
-    vector<int> row(columnCount, 0);
-    this->rows.assign(maxRowCount, row);
-
-    ifstream fin(pageName, ios::in);
-    this->rowCount = 1;
-    int number;
-    for (int columnCounter = 0; columnCounter < columnCount; columnCounter++)
-    {
-        fin >> number;
-        this->rows[0][columnCounter] = number;
-    }
-    fin.close();
-}
 /**
  * @brief Get row from page indexed by rowIndex
  * 
@@ -99,23 +77,35 @@ vector<int> Page::getRow(int rowIndex)
     return this->rows[rowIndex];
 }
 
-int& Page::getElement(int rowIndex, int colIndex)
-{
-    logger.log("Page::getElement");
-    int result = 0;
-    assert(rowIndex >= this->rowCount || colIndex >= this->rows[rowIndex].size());
-    return this->rows[rowIndex][colIndex];
+/**
+ * @param row
+ * @param col
+ * @return Returns value at cell specified by parameters
+ */
+int Page::getCell(int row, int col) {
+    logger.log("Page::getCell");
+    assert(row < this->rowCount && col < this->columnCount);
+    return this->rows[row][col];
 }
 
-Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount)
+/**
+ * @brief Sets tableName of the page to a new table name, recreates the new pageName for the page.
+ * @param newName
+ */
+void Page::setPageName(string newName) {
+    this->tableName = newName;
+    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(this->pageIndex);
+}
+
+Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
 {
     logger.log("Page::Page");
-    this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->rows = rows;
     this->rowCount = rowCount;
-    this->columnCount = rows[0].size();
-    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(pageIndex);
+    this->columnCount = colCount;
+    this->tableName = tableName;
+    this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
 }
 
 /**
@@ -125,6 +115,7 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
 void Page::writePage()
 {
     logger.log("Page::writePage");
+    blockStats.WriteBlock();
     ofstream fout(this->pageName, ios::trunc);
     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {
@@ -137,4 +128,71 @@ void Page::writePage()
         fout << endl;
     }
     fout.close();
+    this->dirty = 0;
+}
+
+/**
+ * @brief transposes the submatrix stored in the page
+ */
+void Page::transpose(Page* p) {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = 0; j < this->columnCount; j++) {
+            swap(this->rows[i][j], p->rows[j][i]);
+        }
+    }
+    this->dirty = 1, p->dirty = 1;
+}
+
+/**
+ * @brief Flips submatrix in place
+ */
+void Page::transpose() {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = i + 1; j < this->columnCount; j++) {
+            swap(this->rows[i][j], this->rows[j][i]);
+        }
+    }
+    this->dirty = 1;
+}
+
+/**
+ * @brief Should only be used between corresponding blocks in the matrix. Swaps the values between them to
+ * perform a transpose
+ */
+void Page::subtractTranspose(Page* p) {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = 0; j < this->columnCount; j++) {
+            this->rows[i][j] -= p->rows[j][i];
+            p->rows[j][i] = -this->rows[i][j];
+        }
+    }
+    this->dirty = 1, p->dirty = 1;
+}
+
+/**
+ * @brief Should only be used between corresponding blocks int he matrix. Performs a transpose and subtracts
+ * the value to get the resultant.
+ */
+void Page::subtractTranspose() {
+    for (int i = 0; i < this->rowCount; i++) {
+        for (int j = i; j < this->columnCount; j++) {
+            this->rows[i][j] -= this->rows[j][i];
+            this->rows[j][i] = -this->rows[i][j];
+        }
+    }
+    this->dirty = 1;
+}
+
+/**
+ * @brief returns if a page is Dirty or not (has been changed and needs to be
+ * written to disk).
+ */
+bool Page::isDirty() {
+    return this->dirty;
+}
+/**
+ * @brief returns the table name the page belongs to.
+ */
+string Page::getTableName() {
+    return this->tableName;
 }

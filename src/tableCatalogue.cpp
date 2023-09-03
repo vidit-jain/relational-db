@@ -5,6 +5,12 @@ void TableCatalogue::insertTable(Table* table)
     logger.log("TableCatalogue::~insertTable"); 
     this->tables[table->tableName] = table;
 }
+
+void TableCatalogue::insertMatrix(Matrix *matrix) {
+    logger.log("TableCatalogue::~insertTable");
+    this->matrices[matrix->matrixName] = matrix;
+}
+
 void TableCatalogue::deleteTable(string tableName)
 {
     logger.log("TableCatalogue::deleteTable"); 
@@ -12,18 +18,27 @@ void TableCatalogue::deleteTable(string tableName)
     delete this->tables[tableName];
     this->tables.erase(tableName);
 }
+
+void TableCatalogue::deleteMatrix(string matrixName) {
+    logger.log("TableCatalogue::deleteTable");
+    this->tables[matrixName]->unload();
+    delete this->tables[matrixName];
+    this->tables.erase(matrixName);
+}
+
 Table* TableCatalogue::getTable(string tableName)
 {
     logger.log("TableCatalogue::getTable"); 
     Table *table = this->tables[tableName];
     return table;
 }
-Matrix* TableCatalogue::getMatrix(string matrixName)
-{
-    logger.log("MatrixCatalogue::getMatrix");
+
+Matrix* TableCatalogue::getMatrix(string matrixName) {
+    logger.log("TableCatalogue::getTable");
     Matrix *matrix = this->matrices[matrixName];
     return matrix;
 }
+
 bool TableCatalogue::isTable(string tableName)
 {
     logger.log("TableCatalogue::isTable"); 
@@ -40,11 +55,6 @@ bool TableCatalogue::isMatrix(string matrixName)
     return false;
 }
 
-bool TableCatalogue::isLoaded(string dataName) {
-    logger.log("TableCatalogue::isLoaded");
-    return isTable(dataName) || isMatrix(dataName);
-}
-
 bool TableCatalogue::isColumnFromTable(string columnName, string tableName)
 {
     logger.log("TableCatalogue::isColumnFromTable"); 
@@ -57,18 +67,37 @@ bool TableCatalogue::isColumnFromTable(string columnName, string tableName)
     return false;
 }
 
-void TableCatalogue::print()
+void TableCatalogue::print(string type)
 {
-    logger.log("TableCatalogue::print"); 
-    cout << "\nRELATIONS" << endl;
+    logger.log("TableCatalogue::print");
+    if (type == "TABLES") {
+        cout << "\nRELATIONS" << endl;
 
-    int rowCount = 0;
-    for (auto rel : this->tables)
-    {
-        cout << rel.first << endl;
-        rowCount++;
+        int rowCount = 0;
+        for (auto rel : this->tables)
+        {
+            cout << rel.first << endl;
+            rowCount++;
+        }
+        printRowCount(rowCount);
     }
-    printRowCount(rowCount);
+    else {
+        cout << "\nMATRICES" << endl;
+        int rowCount = 0;
+        for (auto mat : this->matrices)
+        {
+            cout << mat.first << endl;
+            rowCount++;
+        }
+        printRowCount(rowCount);
+    }
+}
+
+void TableCatalogue::renameMatrix(string oldName, string newName) {
+    auto nodeHandler = matrices.extract(oldName);
+    nodeHandler.key() = newName;
+    matrices.insert(std::move(nodeHandler));
+    matrices[newName]->rename(newName);
 }
 
 TableCatalogue::~TableCatalogue(){
@@ -76,5 +105,9 @@ TableCatalogue::~TableCatalogue(){
     for(auto table: this->tables){
         table.second->unload();
         delete table.second;
+    }
+    for(auto matrix: this->matrices){
+        matrix.second->unload();
+        delete matrix.second;
     }
 }

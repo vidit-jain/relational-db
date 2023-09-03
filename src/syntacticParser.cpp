@@ -27,6 +27,12 @@ bool syntacticParse()
         return syntacticParseEXPORT();
     else if(possibleQueryType == "SOURCE")
         return syntacticParseSOURCE();
+    else if(possibleQueryType == "CHECKSYMMETRY")
+        return syntacticParseSYMMETRY();
+    else if(possibleQueryType == "TRANSPOSE")
+        return syntacticParseTRANSPOSE();
+    else if(possibleQueryType == "COMPUTE")
+        return syntacticParseCOMPUTE();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -114,6 +120,16 @@ void ParsedQuery::clear()
     this->sortRelationName = "";
 
     this->sourceFileName = "";
+    this->sourceFileName = "";
+    this->loadMatrixName = "";
+    this->printMatrixName = "";
+    this->transposeMatrixName = "";
+    this->symmetryMatrixName = "";
+    this->computeMatrixName = "";
+    this->exportMatrixName = "";
+    this->renameFromMatrixName = "";
+    this->renameToMatrixName = "";
+    this->queryData = "";
 }
 
 /**

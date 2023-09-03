@@ -20,22 +20,22 @@
  * </p>
  *
  */
-#ifndef BUFFERMANAGER_H
-#define BUFFERMANAGER_H
 class BufferManager{
 
-    deque<Page> pages; 
+    deque<Page> pages;
+    uint blocksWritten, blocksRead;
     bool inPool(string pageName);
-    Page getFromPool(string pageName);
-    Page insertIntoPool(string tableName, int pageIndex);
+    Page* getFromPool(string pageName);
+    Page* insertIntoPool(string tableName, int pageIndex, datatype d);
 
     public:
     
     BufferManager();
-    Page getPage(string tableName, int pageIndex);
-    void writePage(string pageName, vector<vector<int>> rows);
+    Page* getPage(string tableName, int pageIndex, datatype d);
     void deleteFile(string tableName, int pageIndex);
     void deleteFile(string fileName);
-    void writePage(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount);
+    void renameFile(string oldName, string newName, int pageIndex);
+    void renameFile(string oldName, string newName);
+    void writePage(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount);
+    void renamePagesInMemory(string oldName, string newName);
 };
-#endif

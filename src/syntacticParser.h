@@ -5,6 +5,7 @@ using namespace std;
 enum QueryType
 {
     CLEAR,
+    COMPUTE,
     CROSS,
     DISTINCT,
     EXPORT,
@@ -18,6 +19,8 @@ enum QueryType
     SELECTION,
     SORT,
     SOURCE,
+    SYMMETRY,
+    TRANSPOSE,
     UNDETERMINED
 };
 
@@ -51,6 +54,7 @@ class ParsedQuery
 
 public:
     QueryType queryType = UNDETERMINED;
+    string queryData = "";
 
     string clearRelationName = "";
 
@@ -100,6 +104,14 @@ public:
     string sortRelationName = "";
 
     string sourceFileName = "";
+    string loadMatrixName = "";
+    string printMatrixName = "";
+    string transposeMatrixName = "";
+    string symmetryMatrixName = "";
+    string computeMatrixName = "";
+    string exportMatrixName = "";
+    string renameFromMatrixName = "";
+    string renameToMatrixName = "";
 
     ParsedQuery();
     void clear();
@@ -120,6 +132,9 @@ bool syntacticParseRENAME();
 bool syntacticParseSELECTION();
 bool syntacticParseSORT();
 bool syntacticParseSOURCE();
+bool syntacticParseSYMMETRY();
+bool syntacticParseTRANSPOSE();
+bool syntacticParseCOMPUTE();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);

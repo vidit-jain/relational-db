@@ -1,0 +1,4 @@
+*.o
+.idea/
+src/log
+src/server

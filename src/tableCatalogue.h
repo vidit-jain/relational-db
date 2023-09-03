@@ -23,6 +23,11 @@ public:
     bool isMatrix(string matrixName);
     bool isLoaded(string dataName);
     bool isColumnFromTable(string columnName, string tableName);
-    void print();
+    void print(string type);
+    void insertMatrix(Matrix* matrix);
+    void renameMatrix(string oldName, string newName);
+    void deleteMatrix(string matrixName);
+    Matrix* getMatrix(string matrixName);
+    bool isMatrix(string matrixName);
     ~TableCatalogue();
 };

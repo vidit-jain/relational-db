@@ -128,7 +128,7 @@ bool Table::blockify()
         this->updateStatistics(row);
         if (pageCounter == this->maxRowsPerBlock)
         {
-            bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter);
+            bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage[0].size());
             this->blockCount++;
             this->rowsPerBlockCount.emplace_back(pageCounter);
             pageCounter = 0;
@@ -136,7 +136,7 @@ bool Table::blockify()
     }
     if (pageCounter)
     {
-        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter);
+        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage.size());
         this->blockCount++;
         this->rowsPerBlockCount.emplace_back(pageCounter);
         pageCounter = 0;
@@ -225,7 +225,7 @@ void Table::print()
     //print headings
     this->writeRow(this->columns, cout);
 
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, TABLE);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < count; rowCounter++)
     {
@@ -272,7 +272,7 @@ void Table::makePermanent()
     //print headings
     this->writeRow(this->columns, fout);
 
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, MATRIX);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {
@@ -292,7 +292,7 @@ bool Table::isPermanent()
 {
     logger.log("Table::isPermanent");
     if (this->sourceFileName == "../data/" + this->tableName + ".csv")
-    return true;
+        return true;
     return false;
 }
 
@@ -317,7 +317,7 @@ void Table::unload(){
 Cursor Table::getCursor()
 {
     logger.log("Table::getCursor");
-    Cursor cursor(this->tableName, 0);
+    Cursor cursor(this->tableName, 0, TABLE);
     return cursor;
 }
 /**

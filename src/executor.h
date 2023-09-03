@@ -3,6 +3,7 @@
 void executeCommand();
 
 void executeCLEAR();
+void executeCOMPUTE();
 void executeCROSS();
 void executeDISTINCT();
 void executeEXPORT();
@@ -16,6 +17,8 @@ void executeRENAME();
 void executeSELECTION();
 void executeSORT();
 void executeSOURCE();
+void executeSYMMETRY();
+void executeTRANSPOSE();
 
 bool evaluateBinOp(int value1, int value2, BinaryOperator binaryOperator);
 void printRowCount(int rowCount);

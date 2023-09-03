@@ -1,10 +1,11 @@
 #include "global.h"
 
-Cursor::Cursor(string tableName, int pageIndex)
+Cursor::Cursor(string tableName, int pageIndex, datatype d)
 {
     logger.log("Cursor::Cursor");
-    this->page = bufferManager.getPage(tableName, pageIndex);
+    this->page = *bufferManager.getPage(tableName, pageIndex, d);
     this->pagePointer = 0;
+    this->d = d;
     this->tableName = tableName;
     this->pageIndex = pageIndex;
 }
@@ -31,10 +32,18 @@ vector<int> Cursor::getNext()
     return result;
 }
 
-int& Cursor::getElement(int index) {
-    logger.log("Cursor::getElement");
-    return this->page.getElement(0, index);
+/**
+ * @brief This function returns the value at the location in the page
+ * specified by the parameters
+ * @param row
+ * @param col
+ * @return value at cell specified
+ */
+int Cursor::getCell(int row, int col) {
+    logger.log("Cursor::getCell");
+    return this->page.getCell(row, col);
 }
+
 /**
  * @brief Function that loads Page indicated by pageIndex. Now the cursor starts
  * reading from the new page.
@@ -44,7 +53,7 @@ int& Cursor::getElement(int index) {
 void Cursor::nextPage(int pageIndex)
 {
     logger.log("Cursor::nextPage");
-    this->page = bufferManager.getPage(this->tableName, pageIndex);
+    this->page = *bufferManager.getPage(this->tableName, pageIndex, this->d);
     this->pageIndex = pageIndex;
     this->pagePointer = 0;
 }
