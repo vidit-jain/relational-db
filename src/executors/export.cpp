@@ -51,6 +51,7 @@ void executeEXPORT()
     else {
         Matrix* matrix = tableCatalogue.getMatrix(parsedQuery.exportMatrixName);
         matrix->makePermanent();
+        blockStats.log();
     }
     return;
 }

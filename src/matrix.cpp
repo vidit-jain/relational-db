@@ -20,7 +20,7 @@ Matrix::Matrix(string matrixName)
 {
     logger.log("Matrix::Matrix");
     this->sourceFileName = "../data/" + matrixName + ".csv";
-    this->matrixName = matrixName;
+    this->matrixName = this->originalMatrixName = matrixName;
 }
 
 /**
@@ -36,6 +36,7 @@ Matrix::Matrix(string matrixName, Matrix* originalMatrix)
     logger.log("Matrix::Matrix");
     this->sourceFileName = "../data/temp/" + matrixName + ".csv";
     this->matrixName = matrixName;
+    this->originalMatrixName = matrixName;
     this->dimension = originalMatrix->dimension;
     this->blockCount = originalMatrix->blockCount;
     this->symmetric = originalMatrix->symmetric;
@@ -225,7 +226,7 @@ void Matrix::makePermanent()
 bool Matrix::isPermanent()
 {
     logger.log("Matrix::isPermanent");
-    if (this->sourceFileName == "../data/" + this->matrixName + ".csv")
+    if (this->sourceFileName == "../data/" + this->originalMatrixName + ".csv")
         return true;
     return false;
 }

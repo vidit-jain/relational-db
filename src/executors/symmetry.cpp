@@ -34,6 +34,6 @@ void executeSYMMETRY()
     if (symmetry) cout << "TRUE" << endl;
     else cout << "FALSE" << endl;
 
-    bufferManager.log();
+    blockStats.log();
     return;
 }

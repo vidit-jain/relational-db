@@ -11,6 +11,7 @@ vector<string> tokenizedQuery;
 ParsedQuery parsedQuery;
 TableCatalogue tableCatalogue;
 BufferManager bufferManager;
+BlockStats blockStats;
 
 void doCommand()
 {

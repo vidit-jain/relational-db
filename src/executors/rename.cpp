@@ -73,7 +73,7 @@ void executeRENAME()
     }
     else {
         tableCatalogue.renameMatrix(parsedQuery.renameFromMatrixName, parsedQuery.renameToMatrixName);
-        bufferManager.log();
+        blockStats.log();
     }
     return;
 }

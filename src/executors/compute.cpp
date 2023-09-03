@@ -34,6 +34,6 @@ void executeCOMPUTE()
     Matrix* matrixResult = new Matrix(matrixResultName, matrix);
     matrixResult->compute(matrix->matrixName);
     tableCatalogue.insertMatrix(matrixResult);
-    bufferManager.log();
+    blockStats.log();
     return;
 }

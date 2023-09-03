@@ -52,7 +52,7 @@ void executePRINT()
     else {
         Matrix* matrix = tableCatalogue.getMatrix(parsedQuery.printMatrixName);
         matrix->print();
-        bufferManager.log();
+        blockStats.log();
     }
     return;
 }

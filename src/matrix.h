@@ -12,6 +12,7 @@ class Matrix
 public:
     string sourceFileName = "";
     string matrixName = "";
+    string originalMatrixName = "";
     long long int dimension = 0;
     uint blockCount = 0;
     int symmetric = -1; // -1 - not computed, 0 - not symmetric, 1 - symmetric

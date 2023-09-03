@@ -47,6 +47,7 @@ Page::Page(string tableName, int pageIndex, datatype d)
     }
     vector<int> row(columnCount, 0);
     this->rows.assign(maxRowCount, row);
+    blockStats.ReadBlock();
     ifstream fin(pageName, ios::in);
     int number;
     for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
@@ -103,7 +104,8 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
     this->rows = rows;
     this->rowCount = rowCount;
     this->columnCount = colCount;
-    setPageName(tableName);
+    this->tableName = tableName;
+    this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
 }
 
 /**
@@ -113,6 +115,7 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
 void Page::writePage()
 {
     logger.log("Page::writePage");
+    blockStats.WriteBlock();
     ofstream fout(this->pageName, ios::trunc);
     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
     {

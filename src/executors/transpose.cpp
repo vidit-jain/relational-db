@@ -31,6 +31,6 @@ void executeTRANSPOSE()
     logger.log("executeTRANSPOSE");
     Matrix* matrix = tableCatalogue.getMatrix(parsedQuery.transposeMatrixName);
     matrix->transpose();
-    bufferManager.log();
+    blockStats.log();
     return;
 }

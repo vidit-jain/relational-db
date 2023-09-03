@@ -70,7 +70,7 @@ void executeLOAD()
             tableCatalogue.insertMatrix(matrix);
             cout << "Loaded Table. Dimension: " << matrix->dimension << endl;
         }
-        bufferManager.log();
+        blockStats.log();
     }
     return;
 }
