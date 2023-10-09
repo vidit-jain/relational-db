@@ -1,5 +1,4 @@
 #include "cursor.h"
-#include "syntacticParser.h"
 
 enum IndexingStrategy
 {
