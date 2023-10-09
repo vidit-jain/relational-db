@@ -49,5 +49,8 @@ bool semanticParseSORT() {
 
 void executeSORT() {
     logger.log("executeSORT");
+
+    Table *table = tableCatalogue.getTable(parsedQuery.sortRelationName);
+    table->sort(parsedQuery.sortColumnNames, parsedQuery.sortingStrategies);
     return;
 }

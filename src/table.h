@@ -1,4 +1,5 @@
 #include "cursor.h"
+#include "syntacticParser.h"
 
 enum IndexingStrategy
 {
@@ -50,6 +51,7 @@ public:
     Cursor getCursor();
     int getColumnIndex(string columnName);
     void unload();
+    void sort(const vector<string> &colNames, const vector<SortingStrategy> &order);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a
