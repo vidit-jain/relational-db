@@ -98,9 +98,8 @@ public:
     string selectionSecondColumnName = "";
     int selectionIntLiteral = 0;
 
-    SortingStrategy sortingStrategy = NO_SORT_CLAUSE;
-    string sortResultRelationName = "";
-    string sortColumnName = "";
+    vector<SortingStrategy> sortingStrategies;
+    vector<string> sortColumnNames;
     string sortRelationName = "";
 
     string sourceFileName = "";

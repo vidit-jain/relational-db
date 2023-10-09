@@ -33,6 +33,8 @@ bool syntacticParse()
         return syntacticParseTRANSPOSE();
     else if(possibleQueryType == "COMPUTE")
         return syntacticParseCOMPUTE();
+    else if(possibleQueryType == "SORT")
+        return syntacticParseSORT();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -52,8 +54,6 @@ bool syntacticParse()
             return syntacticParseCROSS();
         else if (possibleQueryType == "DISTINCT")
             return syntacticParseDISTINCT();
-        else if (possibleQueryType == "SORT")
-            return syntacticParseSORT();
         else
         {
             cout << "SYNTAX ERROR" << endl;
@@ -114,9 +114,8 @@ void ParsedQuery::clear()
     this->selectionSecondColumnName = "";
     this->selectionIntLiteral = 0;
 
-    this->sortingStrategy = NO_SORT_CLAUSE;
-    this->sortResultRelationName = "";
-    this->sortColumnName = "";
+    this->sortingStrategies.clear();
+    this->sortColumnNames.clear();
     this->sortRelationName = "";
 
     this->sourceFileName = "";
