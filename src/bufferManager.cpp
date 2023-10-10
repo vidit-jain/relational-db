@@ -1,7 +1,6 @@
 #include "global.h"
 
-BufferManager::BufferManager()
-{
+BufferManager::BufferManager() {
     logger.log("BufferManager::BufferManager");
     this->blocksWritten = this->blocksRead = 0;
 }
@@ -14,10 +13,9 @@ BufferManager::BufferManager()
  * @param pageIndex 
  * @return Page*
  */
-Page* BufferManager::getPage(string tableName, int pageIndex, datatype d)
-{
+Page *BufferManager::getPage(string tableName, int pageIndex, datatype d) {
     logger.log("BufferManager::getPage");
-    string pageName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
+    string pageName = "../data/temp/" + tableName + "_Page" + to_string(pageIndex);
     if (this->inPool(pageName))
         return this->getFromPool(pageName);
     else
@@ -31,11 +29,9 @@ Page* BufferManager::getPage(string tableName, int pageIndex, datatype d)
  * @return true 
  * @return false 
  */
-bool BufferManager::inPool(string pageName)
-{
+bool BufferManager::inPool(string pageName) {
     logger.log("BufferManager::inPool");
-    for (auto page : this->pages)
-    {
+    for (auto page: this->pages) {
         if (pageName == page.pageName)
             return true;
     }
@@ -50,10 +46,9 @@ bool BufferManager::inPool(string pageName)
  * @param pageName 
  * @return Page*
  */
-Page* BufferManager::getFromPool(string pageName)
-{
+Page *BufferManager::getFromPool(string pageName) {
     logger.log("BufferManager::getFromPool");
-    for (auto& page : this->pages)
+    for (auto &page: this->pages)
         if (pageName == page.pageName)
             return &page;
 }
@@ -67,8 +62,7 @@ Page* BufferManager::getFromPool(string pageName)
  * @param pageIndex 
  * @return Page*
  */
-Page* BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
-{
+Page *BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d) {
     logger.log("BufferManager::insertIntoPool");
     this->blocksRead++;
     Page page(tableName, pageIndex, d);
@@ -92,12 +86,18 @@ Page* BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
  * @param rows 
  * @param rowCount 
  */
-void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
-{
+void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount) {
     logger.log("BufferManager::writePage");
-    this->blocksWritten++;
-    Page page(tableName, pageIndex, rows, rowCount, colCount);
-    page.writePage();
+
+    string pageName = "../data/temp/" + tableName + "_Page" + to_string(pageIndex);
+    if (!inPool(pageName)) {
+        this->blocksWritten++;
+        Page page(tableName, pageIndex, rows, rowCount, colCount);
+        page.writePage();
+    } else {
+        auto page = getFromPool(pageName);
+        page->modifyPage(rows, colCount);
+    }
 }
 
 /**
@@ -105,12 +105,11 @@ void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int
  *
  * @param fileName 
  */
-void BufferManager::deleteFile(string fileName)
-{
-    
+void BufferManager::deleteFile(string fileName) {
+
     if (remove(fileName.c_str()))
         logger.log("BufferManager::deleteFile: Err");
-        else logger.log("BufferManager::deleteFile: Success");
+    else logger.log("BufferManager::deleteFile: Success");
 }
 
 /**
@@ -119,8 +118,7 @@ void BufferManager::deleteFile(string fileName)
  * @param oldName
  * @param newName
  */
-void BufferManager::renameFile(string oldName, string newName)
-{
+void BufferManager::renameFile(string oldName, string newName) {
 
     if (rename(oldName.c_str(), newName.c_str()))
         logger.log("BufferManager::renameFile: Err");
@@ -135,7 +133,7 @@ void BufferManager::renameFile(string oldName, string newName)
  */
 
 void BufferManager::renamePagesInMemory(string oldName, string newName) {
-    for (auto& page : this->pages) {
+    for (auto &page: this->pages) {
         if (page.getTableName() == oldName)
             page.setPageName(newName);
     }
@@ -148,10 +146,9 @@ void BufferManager::renamePagesInMemory(string oldName, string newName) {
  * @param tableName 
  * @param pageIndex 
  */
-void BufferManager::deleteFile(string tableName, int pageIndex)
-{
+void BufferManager::deleteFile(string tableName, int pageIndex) {
     logger.log("BufferManager::deleteFile");
-    string fileName = "../data/temp/"+tableName + "_Page" + to_string(pageIndex);
+    string fileName = "../data/temp/" + tableName + "_Page" + to_string(pageIndex);
     this->deleteFile(fileName);
 }
 
@@ -165,7 +162,7 @@ void BufferManager::deleteFile(string tableName, int pageIndex)
  */
 void BufferManager::renameFile(string oldName, string newName, int pageIndex) {
     logger.log("BufferManager::deleteFile");
-    string oldFileName = "../data/temp/"+ oldName + "_Page" + to_string(pageIndex);
-    string newFileName = "../data/temp/"+ newName + "_Page" + to_string(pageIndex);
+    string oldFileName = "../data/temp/" + oldName + "_Page" + to_string(pageIndex);
+    string newFileName = "../data/temp/" + newName + "_Page" + to_string(pageIndex);
     this->renameFile(oldFileName, newFileName);
 }

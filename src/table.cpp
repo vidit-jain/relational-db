@@ -1,5 +1,4 @@
 #include "global.h"
-#include "table.h"
 
 
 /**
@@ -244,7 +243,7 @@ void Table::makePermanent() {
     //print headings
     this->writeRow(this->columns, fout);
 
-    Cursor cursor(this->tableName, 0, MATRIX);
+    Cursor cursor(this->tableName, 0, TABLE);
     vector<int> row;
     for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++) {
         row = cursor.getNext();
@@ -335,5 +334,40 @@ void Table::sort(const vector<std::string> &colNames, const vector<int> &colMult
  * @param colMultipliers Specifies the ordering for each column via multipliers (1 or -1)
  */
 void Table::sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers) {
+    logger.log("Table::sortingPhase");
 
+    const auto nb = BLOCK_COUNT - 1; //size of the buffer in blocks
+    const auto b = blockCount; //size of the file in blocks
+    const auto nr = (b + nb - 1) / nb; //Number of initial runs: ceil(B/Nb)
+
+    Cursor cursor = getCursor();
+    vector<vector<int>> rows(maxRowsPerBlock * nb, vector<int>(columnCount));
+    vector<vector<int>> writeRows(maxRowsPerBlock, vector<int>(columnCount));
+    auto cmp = [&colIndices, &colMultipliers](const vector<int> &A, const vector<int> &B) {
+        for (int k = 0; k < colIndices.size() - 1; k++) {
+            if (A[colIndices[k]] != B[colIndices[k]])
+                return (A[colIndices[k]] * colMultipliers[k] < B[colIndices[k]] * colMultipliers[k]);
+        }
+        return (A[colIndices.back()] * colMultipliers.back() < B[colIndices.back()] * colMultipliers.back());
+    };
+    auto remBlocksToRead = b, remBlocksToWrite = b;
+    auto blocksRead = 0, blocksWritten = 0;
+    for (int runIdx = 0; runIdx < nr; runIdx++) {
+        int rowReadCounter = 0;
+        for (int blkIdx = 0; blkIdx < min(nb, remBlocksToRead); blkIdx++) {
+            for (int r = 0; r < rowsPerBlockCount[blocksRead]; r++)
+                rows[rowReadCounter++] = cursor.getNext();
+            blocksRead++;
+        }
+        remBlocksToRead = b - blocksRead;
+        std::sort(rows.begin(), rows.begin() + rowReadCounter, cmp);
+        int rowWrittenCounter = 0;
+        for (int blkIdx = 0; blkIdx < min(nb, remBlocksToWrite); blkIdx++) {
+            for (int r = 0; r < rowsPerBlockCount[blocksWritten]; r++)
+                writeRows[r] = rows[rowWrittenCounter++];
+            bufferManager.writePage(tableName, blocksWritten, writeRows, rowsPerBlockCount[blocksWritten], columnCount);
+            blocksWritten++;
+        }
+        remBlocksToWrite = b - blocksWritten;
+    }
 }

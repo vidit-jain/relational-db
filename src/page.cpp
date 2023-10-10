@@ -3,8 +3,7 @@
  * @brief Construct a new Page object. Never used as part of the code
  *
  */
-Page::Page()
-{
+Page::Page() {
     this->pageName = "";
     this->tableName = "";
     this->pageIndex = -1;
@@ -26,8 +25,7 @@ Page::Page()
  * @param tableName 
  * @param pageIndex 
  */
-Page::Page(string tableName, int pageIndex, datatype d)
-{
+Page::Page(string tableName, int pageIndex, datatype d) {
     logger.log("Page::Page");
     this->dirty = 0;
     this->tableName = tableName;
@@ -39,8 +37,7 @@ Page::Page(string tableName, int pageIndex, datatype d)
         this->columnCount = table.columnCount;
         this->rowCount = table.rowsPerBlockCount[pageIndex];
         maxRowCount = table.maxRowsPerBlock;
-    }
-    else {
+    } else {
         Matrix matrix = *tableCatalogue.getMatrix(tableName);
         tie(this->rowCount, this->columnCount) = matrix.dimsPerBlock[pageIndex];
         maxRowCount = this->rowCount;
@@ -50,10 +47,8 @@ Page::Page(string tableName, int pageIndex, datatype d)
     blockStats.ReadBlock();
     ifstream fin(pageName, ios::in);
     int number;
-    for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
-    {
-        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++)
-        {
+    for (uint rowCounter = 0; rowCounter < this->rowCount; rowCounter++) {
+        for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
             fin >> number;
             this->rows[rowCounter][columnCounter] = number;
         }
@@ -67,8 +62,7 @@ Page::Page(string tableName, int pageIndex, datatype d)
  * @param rowIndex 
  * @return vector<int> 
  */
-vector<int> Page::getRow(int rowIndex)
-{
+vector<int> Page::getRow(int rowIndex) {
     logger.log("Page::getRow");
     vector<int> result;
     result.clear();
@@ -94,11 +88,10 @@ int Page::getCell(int row, int col) {
  */
 void Page::setPageName(string newName) {
     this->tableName = newName;
-    this->pageName = "../data/temp/"+this->tableName + "_Page" + to_string(this->pageIndex);
+    this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(this->pageIndex);
 }
 
-Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount)
-{
+Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCount, int colCount) {
     logger.log("Page::Page");
     this->pageIndex = pageIndex;
     this->rows = rows;
@@ -112,15 +105,12 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
  * @brief writes current page contents to file.
  * 
  */
-void Page::writePage()
-{
+void Page::writePage() {
     logger.log("Page::writePage");
     blockStats.WriteBlock();
     ofstream fout(this->pageName, ios::trunc);
-    for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++)
-    {
-        for (int columnCounter = 0; columnCounter < this->columnCount; columnCounter++)
-        {
+    for (int rowCounter = 0; rowCounter < this->rowCount; rowCounter++) {
+        for (int columnCounter = 0; columnCounter < this->columnCount; columnCounter++) {
             if (columnCounter != 0)
                 fout << " ";
             fout << this->rows[rowCounter][columnCounter];
@@ -134,7 +124,7 @@ void Page::writePage()
 /**
  * @brief transposes the submatrix stored in the page
  */
-void Page::transpose(Page* p) {
+void Page::transpose(Page *p) {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = 0; j < this->columnCount; j++) {
             swap(this->rows[i][j], p->rows[j][i]);
@@ -159,7 +149,7 @@ void Page::transpose() {
  * @brief Should only be used between corresponding blocks in the matrix. Swaps the values between them to
  * perform a transpose
  */
-void Page::subtractTranspose(Page* p) {
+void Page::subtractTranspose(Page *p) {
     for (int i = 0; i < this->rowCount; i++) {
         for (int j = 0; j < this->columnCount; j++) {
             this->rows[i][j] -= p->rows[j][i];
@@ -190,9 +180,24 @@ void Page::subtractTranspose() {
 bool Page::isDirty() {
     return this->dirty;
 }
+
 /**
  * @brief returns the table name the page belongs to.
  */
 string Page::getTableName() {
     return this->tableName;
+}
+
+/**
+ * @brief Given the new rows, modify the page content and mark it as dirty
+ *
+ * @param newRows
+ * @param newColumnCount
+ */
+void Page::modifyPage(const vector<vector<int>> &newRows, int newColumnCount) {
+    logger.log("Page::modifyPage");
+    columnCount = newColumnCount;
+    rowCount = newRows.size();
+    rows = newRows;
+    dirty = 1;
 }
