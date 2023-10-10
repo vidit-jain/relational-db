@@ -33,7 +33,8 @@ public:
     bool indexed = false;
     string indexedColumn = "";
     IndexingStrategy indexingStrategy = NOTHING;
-    
+    map<string, int> colNameToIdx;
+
     bool extractColumnNames(string firstLine);
     bool blockify();
     void updateStatistics(vector<int> row);
@@ -49,8 +50,10 @@ public:
     void getNextPage(Cursor *cursor);
     Cursor getCursor();
     int getColumnIndex(string columnName);
+    vector<int> getColumnIndex(const vector<string> &columnNames);
     void unload();
-    void sort(const vector<string> &colNames, const vector<SortingStrategy> &order);
+    void sort(const vector<string> &colNames, const vector<int> &colMultipliers);
+    void sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a

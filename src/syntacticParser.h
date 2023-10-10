@@ -37,9 +37,9 @@ enum BinaryOperator
 
 enum SortingStrategy
 {
-    ASC,
-    DESC,
-    NO_SORT_CLAUSE
+    ASC = 1,
+    DESC = -1,
+    NO_SORT_CLAUSE = 0
 };
 
 enum SelectType
