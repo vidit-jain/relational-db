@@ -34,6 +34,6 @@ class Page{
     void subtractTranspose();
     void setPageName(string newName);
     void writePage();
-    void modifyPage(const vector<vector<int>> &newRows, int newColumnCount);
+    void modifyPage(const vector<vector<int>> &newRows, int newRowCount, int newColumnCount);
     string getTableName();
 };

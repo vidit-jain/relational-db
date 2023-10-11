@@ -1,4 +1,5 @@
 #include "global.h"
+
 /**
  * @brief Construct a new Page object. Never used as part of the code
  *
@@ -194,10 +195,10 @@ string Page::getTableName() {
  * @param newRows
  * @param newColumnCount
  */
-void Page::modifyPage(const vector<vector<int>> &newRows, int newColumnCount) {
+void Page::modifyPage(const vector<vector<int>> &newRows, int newRowCount, int newColumnCount) {
     logger.log("Page::modifyPage");
-    columnCount = newColumnCount;
-    rowCount = newRows.size();
-    rows = newRows;
+    columnCount = newColumnCount, rowCount = newRowCount;
+    rows.resize(rowCount);
+    for (int r = 0; r < rowCount; r++) rows[r] = newRows[r];
     dirty = 1;
 }

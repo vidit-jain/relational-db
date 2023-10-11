@@ -96,7 +96,7 @@ void BufferManager::writePage(string tableName, int pageIndex, vector<vector<int
         page.writePage();
     } else {
         auto page = getFromPool(pageName);
-        page->modifyPage(rows, colCount);
+        page->modifyPage(rows, rowCount, colCount);
     }
 }
 
