@@ -42,6 +42,28 @@ Table::Table(string tableName, vector<string> columns) {
 }
 
 /**
+ * @brief Construct a new Table::Table object using the originalTable provided
+ *
+ * @param tableName
+ * @param originalTable
+ */
+Table::Table(string tableName, Table *originalTable) {
+    this->sourceFileName = "../data" + tableName + ".csv";
+    this->tableName = tableName;
+    this->columns = originalTable->columns;
+    this->distinctValuesPerColumnCount = originalTable->distinctValuesPerColumnCount;
+    this->columnCount = originalTable->columnCount;
+    this->rowCount = originalTable->rowCount;
+    this->blockCount = originalTable->blockCount;
+    this->maxRowsPerBlock = originalTable->maxRowsPerBlock;
+    this->rowsPerBlockCount = originalTable->rowsPerBlockCount;
+    this->indexed = originalTable->indexed;
+    this->indexedColumn = originalTable->indexedColumn;
+    this->indexingStrategy = originalTable->indexingStrategy;
+    this->colNameToIdx = originalTable->colNameToIdx;
+}
+
+/**
  * @brief The load function is used when the LOAD command is encountered. It
  * reads data from the source file, splits it into blocks and updates table
  * statistics.
@@ -324,7 +346,9 @@ vector<int> Table::getColumnIndex(const vector<string> &columnNames) {
  */
 void Table::sort(const vector<std::string> &colNames, const vector<int> &colMultipliers) {
     logger.log("Table::sort");
-    sortingPhase(getColumnIndex(colNames), colMultipliers);
+    auto colIndices = getColumnIndex(colNames);
+    sortingPhase(colIndices, colMultipliers);
+    mergingPhase(colIndices, colMultipliers);
 }
 
 /**
@@ -370,4 +394,97 @@ void Table::sortingPhase(const vector<int> &colIndices, const vector<int> &colMu
         }
         remBlocksToWrite = b - blocksWritten;
     }
+}
+
+/**
+ * @brief Performs the merging phase of the external sort algorithm
+ *
+ * @param colIndices
+ * @param colMultipliers
+ */
+void Table::mergingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers) {
+    logger.log("Table::mergingPhase");
+
+    const auto nb = BLOCK_COUNT - 1; //size of the buffer in blocks
+    const auto b = blockCount; //size of the file in blocks
+    auto nr = (b + nb - 1) / nb; //Number of initial runs: ceil(B/Nb)
+    vector<vector<int>> writeRows(maxRowsPerBlock, vector<int>(columnCount));
+    auto runSize = nb;
+    vector<uint> remRows(nb, 0);
+    vector<Cursor> currCursors(nb);
+    auto cmp = [&colIndices, &colMultipliers](const pair<vector<int>, int> &A, const pair<vector<int>, int> &B) {
+        for (int k = 0; k < colIndices.size() - 1; k++) {
+            if (A.first[colIndices[k]] != B.first[colIndices[k]])
+                return (A.first[colIndices[k]] * colMultipliers[k] > B.first[colIndices[k]] * colMultipliers[k]);
+        }
+        return (A.first[colIndices.back()] * colMultipliers.back() >
+                B.first[colIndices.back()] * colMultipliers.back());
+    };
+    //TODO: Make cmp util?
+    priority_queue<pair<vector<int>, int>, vector<pair<vector<int>, int>>, decltype(cmp)> pq(cmp);
+    string readTableName = tableName, writeTableName = "sort_buffer_" + tableName;
+    while (tableCatalogue.isTable(writeTableName)) writeTableName += "_"; //TODO: Random?
+    auto writeTable = new Table(writeTableName, this);
+    tableCatalogue.insertTable(writeTable);
+    while (nr > 1) {
+        logger.log("Table:MergePhaseStage");
+        logger.log(to_string(nr) + "," + to_string(runSize));
+        auto curr = (nr + nb - 1) / nb; //Number of subfiles to write in this pass: ceil(nr / nb)
+        int writeBlockCounter = 0;
+        for (uint runIdx = 0; runIdx < curr; runIdx++) {
+            int i = 0;
+            for (auto blkIdx = runIdx * nb * runSize; blkIdx < min((runIdx + 1) * nb * runSize, b); blkIdx += runSize) {
+                currCursors[i] = Cursor(readTableName, blkIdx, TABLE);
+                logger.log(to_string(runIdx) + "," + to_string(blkIdx));
+                for (int j = 0; j < runSize and blkIdx + j < b; j++)
+                    remRows[i] += rowsPerBlockCount[blkIdx + j]; //TODO: use maxRowsPerBlock instead?
+                assert(remRows[i]); //Should never happen. Sanity check
+                vector<int> row = currCursors[i].getNext();
+                remRows[i]--;
+                pq.emplace(row, i);
+                i++;
+            }
+            for (auto &j: remRows) logger.log(to_string(j) + ":");
+            auto writeRowCounter = 0;
+            while (!pq.empty()) {
+                if (writeRowCounter == maxRowsPerBlock) {
+                    bufferManager.writePage(writeTableName, writeBlockCounter++, writeRows, writeRowCounter,
+                                            columnCount);
+                    writeRowCounter = 0;
+                }
+                auto [row, idx] = pq.top();
+                pq.pop();
+                writeRows[writeRowCounter++] = row;
+                if (remRows[idx]) {
+                    remRows[idx]--;
+                    row = currCursors[idx].getNext();
+                    pq.emplace(row, idx);
+                }
+            }
+            if (writeRowCounter) {
+                bufferManager.writePage(writeTableName, writeBlockCounter++, writeRows, writeRowCounter, columnCount);
+                writeRowCounter = 0;
+            }
+        }
+        nr = curr, runSize *= nb;
+        readTableName.swap(writeTableName);
+    }
+    readTableName.swap(writeTableName);
+    if (writeTableName != tableName) {
+        writeTable->rename(tableName);
+        tableCatalogue.eraseTable(writeTableName);
+    } else tableCatalogue.eraseTable(readTableName);
+}
+
+/**
+ * @brief Renames the table and all its associated pages
+ * @param newName
+ */
+void Table::rename(const string &newName) {
+    logger.log("Table::rename");
+    bufferManager.renamePagesInMemory(tableName, newName);
+
+    for (int pageCounter = 0; pageCounter < blockCount; pageCounter++)
+        bufferManager.renameFile(tableName, newName, pageCounter);
+    tableName = newName;
 }

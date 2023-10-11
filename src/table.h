@@ -40,6 +40,7 @@ public:
     void updateStatistics(vector<int> row);
     Table();
     Table(string tableName);
+    Table(string tableName, Table *originalTable);
     Table(string tableName, vector<string> columns);
     bool load();
     bool isColumn(string columnName);
@@ -54,6 +55,8 @@ public:
     void unload();
     void sort(const vector<string> &colNames, const vector<int> &colMultipliers);
     void sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers);
+    void mergingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers);
+    void rename(const string &newName);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a

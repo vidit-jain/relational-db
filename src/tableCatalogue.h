@@ -17,6 +17,7 @@ public:
     TableCatalogue() {}
     void insertTable(Table* table);
     void deleteTable(string tableName);
+    void eraseTable(string tableName);
     Table* getTable(string tableName);
     Matrix* getMatrix(string matrixName);
     bool isTable(string tableName);
