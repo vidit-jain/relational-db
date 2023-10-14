@@ -352,6 +352,16 @@ void Table::sort(const vector<std::string> &colNames, const vector<int> &colMult
 }
 
 /**
+ * @brief Function that sorts the table based on the subset of columns provided
+ *
+ * @param colName Name of column to sort the table on
+ * @param colMultiplier Specifies the multiplier for the column
+ */
+void Table::sort(const std::string &colName, int colMultiplier, const string& originalTableName) {
+    logger.log("Table::sort");
+    sort(vector<string>{colName}, vector<int>{colMultiplier}, originalTableName);
+}
+/**
  * @brief Performs the sorting phase of the external sort algorithm
  *
  * @param colIndices Indices of the columns to perform the sort on

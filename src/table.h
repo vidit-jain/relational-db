@@ -54,6 +54,7 @@ public:
     vector<int> getColumnIndex(const vector<string> &columnNames);
     void unload();
     void sort(const vector<string> &colNames, const vector<int> &colMultipliers, const string& originalTableName);
+    void sort(const std::string &colName, int colMultiplier, const string& originalTableName);
     void sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers, const string& originalTableName);
     void mergingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers);
     void rename(const string &newName);

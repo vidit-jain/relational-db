@@ -17,9 +17,9 @@ bool syntacticParseORDERBY() {
     parsedQuery.queryType = ORDERBY;
     parsedQuery.orderByRelationName = tokenizedQuery[7];
     parsedQuery.orderByResultantRelationName = tokenizedQuery[0];
+    parsedQuery.orderByColumnName = tokenizedQuery[4];
+    parsedQuery.orderByMultiplier = (tokenizedQuery[5] == "ASC") ? ASC : DESC;
 
-    parsedQuery.sortingStrategies.push_back((tokenizedQuery[5] == "ASC") ? ASC : DESC);
-    parsedQuery.sortColumnNames.push_back(tokenizedQuery[4]);
     return true;
 }
 
@@ -35,7 +35,7 @@ bool semanticParseORDERBY() {
         cout << "SEMANTIC ERROR: Resultant Relation already exists" << endl;
         return false;
     }
-    if (!tableCatalogue.isColumnFromTable(parsedQuery.sortColumnNames[0], parsedQuery.orderByRelationName)) {
+    if (!tableCatalogue.isColumnFromTable(parsedQuery.orderByColumnName, parsedQuery.orderByRelationName)) {
         cout << "SEMANTIC ERROR: Column does not exist in relation" << endl;
         return false;
     }
@@ -47,7 +47,6 @@ void executeORDERBY() {
 
     Table *table = tableCatalogue.getTable(parsedQuery.orderByRelationName);
     auto *resultantTable = new Table(parsedQuery.orderByResultantRelationName, table);
-    vector<int> colMultipliers = {parsedQuery.sortingStrategies[0]};
-    resultantTable->sort(parsedQuery.sortColumnNames, colMultipliers, parsedQuery.orderByRelationName);
+    resultantTable->sort(parsedQuery.orderByColumnName, parsedQuery.orderByMultiplier, parsedQuery.orderByRelationName);
     tableCatalogue.insertTable(resultantTable);
 }

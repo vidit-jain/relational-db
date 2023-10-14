@@ -122,6 +122,8 @@ void ParsedQuery::clear()
 
     this->orderByRelationName = "";
     this->orderByResultantRelationName = "";
+    this->orderByColumnName = "";
+    this->orderByMultiplier = NO_SORT_CLAUSE;
 
     this->sourceFileName = "";
     this->sourceFileName = "";

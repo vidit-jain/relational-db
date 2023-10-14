@@ -105,6 +105,8 @@ public:
 
     string orderByRelationName = "";
     string orderByResultantRelationName = "";
+    string orderByColumnName = "";
+    SortingStrategy orderByMultiplier = NO_SORT_CLAUSE;
 
     string sourceFileName = "";
     string loadMatrixName = "";
