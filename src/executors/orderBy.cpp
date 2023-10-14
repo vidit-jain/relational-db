@@ -1,10 +1,10 @@
 #include "global.h"
 
 /**
- * @brief File contains method to process SORT commands.
+ * @brief File contains method to process ORDER BY commands.
  *
  * syntax:
- * SORT <table_name> BY <column_name1, column_name2,..., column_namek> IN <ASC|DESC, ASC|DESC,..., ASC|DESC>
+ * <new_table> <- ORDER BY <attribute> ASC|DESC ON <table_name>
  *
  */
 bool syntacticParseORDERBY() {
