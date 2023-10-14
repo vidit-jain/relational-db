@@ -53,5 +53,5 @@ void executeSORT() {
     Table *table = tableCatalogue.getTable(parsedQuery.sortRelationName);
     vector<int> colMultipliers(parsedQuery.sortingStrategies.size());
     for (int i = 0; i < parsedQuery.sortingStrategies.size(); i++) colMultipliers[i] = parsedQuery.sortingStrategies[i];
-    table->sort(parsedQuery.sortColumnNames, colMultipliers);
+    table->sort(parsedQuery.sortColumnNames, colMultipliers, parsedQuery.sortRelationName);
 }

@@ -21,6 +21,7 @@ enum QueryType
     SOURCE,
     SYMMETRY,
     TRANSPOSE,
+    ORDERBY,
     UNDETERMINED
 };
 
@@ -102,6 +103,9 @@ public:
     vector<string> sortColumnNames;
     string sortRelationName = "";
 
+    string orderByRelationName = "";
+    string orderByResultantRelationName = "";
+
     string sourceFileName = "";
     string loadMatrixName = "";
     string printMatrixName = "";
@@ -134,6 +138,7 @@ bool syntacticParseSOURCE();
 bool syntacticParseSYMMETRY();
 bool syntacticParseTRANSPOSE();
 bool syntacticParseCOMPUTE();
+bool syntacticParseORDERBY();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);

@@ -20,6 +20,7 @@ void executeCommand(){
         case SOURCE: executeSOURCE(); break;
         case SYMMETRY: executeSYMMETRY(); break;
         case TRANSPOSE: executeTRANSPOSE(); break;
+        case ORDERBY: executeORDERBY(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 

@@ -344,10 +344,10 @@ vector<int> Table::getColumnIndex(const vector<string> &columnNames) {
  * @param colNames Names of columns to sort the table on
  * @param colMultipliers Specifies the multipliers for each of the columns
  */
-void Table::sort(const vector<std::string> &colNames, const vector<int> &colMultipliers) {
+void Table::sort(const vector<std::string> &colNames, const vector<int> &colMultipliers, const string& originalTableName) {
     logger.log("Table::sort");
     auto colIndices = getColumnIndex(colNames);
-    sortingPhase(colIndices, colMultipliers);
+    sortingPhase(colIndices, colMultipliers, originalTableName);
     mergingPhase(colIndices, colMultipliers);
 }
 
@@ -357,14 +357,14 @@ void Table::sort(const vector<std::string> &colNames, const vector<int> &colMult
  * @param colIndices Indices of the columns to perform the sort on
  * @param colMultipliers Specifies the ordering for each column via multipliers (1 or -1)
  */
-void Table::sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers) {
+void Table::sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers, const string& originalTableName) {
     logger.log("Table::sortingPhase");
 
     const auto nb = BLOCK_COUNT - 1; //size of the buffer in blocks
     const auto b = blockCount; //size of the file in blocks
     const auto nr = (b + nb - 1) / nb; //Number of initial runs: ceil(B/Nb)
 
-    Cursor cursor = getCursor();
+    Cursor cursor(originalTableName, 0, TABLE);
     vector<vector<int>> rows(maxRowsPerBlock * nb, vector<int>(columnCount));
     vector<vector<int>> writeRows(maxRowsPerBlock, vector<int>(columnCount));
     auto cmp = [&colIndices, &colMultipliers](const vector<int> &A, const vector<int> &B) {
