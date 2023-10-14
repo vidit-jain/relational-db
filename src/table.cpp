@@ -148,7 +148,7 @@ bool Table::blockify() {
         }
     }
     if (pageCounter) {
-        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage.size());
+        bufferManager.writePage(this->tableName, this->blockCount, rowsInPage, pageCounter, rowsInPage[0].size());
         this->blockCount++;
         this->rowsPerBlockCount.emplace_back(pageCounter);
         pageCounter = 0;
