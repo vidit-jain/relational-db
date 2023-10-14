@@ -107,5 +107,56 @@ void executeJOIN()
         tableCatalogue.insertTable(resultantTable);
         tableCatalogue.deleteTable(table2->tableName);
     }
+    else {
+        auto* table1 = new Table("Temp_JOIN_" + parsedQuery.joinFirstRelationName, tableCatalogue.getTable(parsedQuery.joinFirstRelationName));
+        auto* table2 = new Table("Temp_JOIN_" + parsedQuery.joinSecondRelationName, tableCatalogue.getTable(parsedQuery.joinSecondRelationName));
+        tableCatalogue.insertTable(table1);
+        tableCatalogue.insertTable(table2);
+        table1->sort(parsedQuery.joinFirstColumnName, ASC, parsedQuery.joinFirstRelationName);
+        table2->sort(parsedQuery.joinSecondColumnName, ASC, parsedQuery.joinSecondRelationName);
+        int col1 = table1->getColumnIndex(parsedQuery.joinFirstColumnName), col2 = table2->getColumnIndex(parsedQuery.joinSecondColumnName);
+        auto columns = table1->columns;
+        columns.insert(columns.end(), table2->columns.begin(), table2->columns.end());
+
+        auto* resultantTable = new Table(parsedQuery.joinResultRelationName, columns);
+        auto cursor1 = table1->getCursor();
+        auto row1 = cursor1.getNext();
+        auto cursor2 = table2->getCursor();
+        auto row2 = cursor2.getNext();
+        while (!row1.empty() && !row2.empty()) {
+            if (row1[col1] < row2[col2]) row1 = cursor1.getNext();
+            else if (row1[col1] > row2[col2]) row2 = cursor2.getNext();
+            else {
+                auto copyCursor = cursor2;
+                vector<int> result = row1;
+                result.insert(result.end(), row2.begin(), row2.end());
+                resultantTable->writeRow<int>(result);
+
+                vector<int> r2 = copyCursor.getNext();
+                while (!r2.empty() && row1[col1] == r2[col2]) {
+                    result = row1;
+                    result.insert(result.end(), r2.begin(), r2.end());
+                    resultantTable->writeRow<int>(result);
+                    r2 = copyCursor.getNext();
+                }
+                copyCursor = cursor1;
+                vector<int> r1 = copyCursor.getNext();
+
+                while (!r1.empty() && r1[col1] == row2[col2]) {
+                    result = r1;
+                    result.insert(result.end(), row2.begin(), row2.end());
+                    resultantTable->writeRow<int>(result);
+                    r1 = copyCursor.getNext();
+                }
+                row1 = cursor1.getNext();
+                row2 = cursor2.getNext();
+            }
+        }
+        resultantTable->blockify();
+        tableCatalogue.insertTable(resultantTable);
+        tableCatalogue.deleteTable(table2->tableName);
+        tableCatalogue.deleteTable(table1->tableName);
+
+    }
     return;
 }
