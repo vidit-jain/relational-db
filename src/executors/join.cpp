@@ -65,6 +65,39 @@ bool semanticParseJOIN()
 
 void executeJOIN()
 {
+    auto *table1 = new Table("Temp_JOIN_" + parsedQuery.joinFirstRelationName, tableCatalogue.getTable(parsedQuery.joinFirstRelationName));
+    auto *table2 = new Table("Temp_JOIN_" + parsedQuery.joinSecondRelationName, tableCatalogue.getTable(parsedQuery.joinSecondRelationName));
+    tableCatalogue.insertTable(table1);
+    tableCatalogue.insertTable(table2);
+    table1->sort(parsedQuery.joinFirstColumnName, ASC, parsedQuery.joinFirstRelationName);
+    table2->sort(parsedQuery.joinSecondColumnName, ASC, parsedQuery.joinSecondRelationName);
+
+    int col1 = table1->getColumnIndex(parsedQuery.joinFirstColumnName);
+    int col2 = table2->getColumnIndex(parsedQuery.joinSecondColumnName);
+
+    auto columns = table1->columns;
+    columns.insert(columns.end(), table2->columns.begin(), table2->columns.end());
+
+    auto* resultantTable = new Table(parsedQuery.joinResultRelationName, columns);
+    auto cursor1 = table1->getCursor();
+
+    auto row1 = cursor1.getNext();
+
+    while (!row1.empty()) {
+        auto cursor2 = table2->getCursor();
+        vector<int> row2 = cursor2.getNext(), result;
+        while (!row2.empty() && row1[col1] > row2[col2]) {
+            result = row1;
+            result.insert(result.end(), row2.begin(), row2.end());
+            resultantTable->writeRow<int>(result);
+            row2 = cursor2.getNext();
+        }
+        row1 = cursor1.getNext();
+    }
+    resultantTable->blockify();
+    tableCatalogue.insertTable(resultantTable);
+    tableCatalogue.deleteTable(table1->tableName);
+    tableCatalogue.deleteTable(table2->tableName);
     logger.log("executeJOIN");
     return;
 }
