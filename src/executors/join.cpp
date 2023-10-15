@@ -114,42 +114,64 @@ void executeJOIN()
         tableCatalogue.insertTable(table2);
         table1->sort(parsedQuery.joinFirstColumnName, ASC, parsedQuery.joinFirstRelationName);
         table2->sort(parsedQuery.joinSecondColumnName, ASC, parsedQuery.joinSecondRelationName);
+
         int col1 = table1->getColumnIndex(parsedQuery.joinFirstColumnName), col2 = table2->getColumnIndex(parsedQuery.joinSecondColumnName);
         auto columns = table1->columns;
         columns.insert(columns.end(), table2->columns.begin(), table2->columns.end());
-
         auto* resultantTable = new Table(parsedQuery.joinResultRelationName, columns);
-        auto cursor1 = table1->getCursor();
-        auto row1 = cursor1.getNext();
-        auto cursor2 = table2->getCursor();
-        auto row2 = cursor2.getNext();
-        while (!row1.empty() && !row2.empty()) {
-            if (row1[col1] < row2[col2]) row1 = cursor1.getNext();
-            else if (row1[col1] > row2[col2]) row2 = cursor2.getNext();
-            else {
-                auto copyCursor = cursor2;
-                vector<int> result = row1;
-                result.insert(result.end(), row2.begin(), row2.end());
-                resultantTable->writeRow<int>(result);
 
-                vector<int> r2 = copyCursor.getNext();
-                while (!r2.empty() && row1[col1] == r2[col2]) {
-                    result = row1;
-                    result.insert(result.end(), r2.begin(), r2.end());
-                    resultantTable->writeRow<int>(result);
-                    r2 = copyCursor.getNext();
+        auto cursor1 = table1->getCursor(), cursor2 = table2->getCursor();
+        auto row1 = cursor1.getNext(), row2 = cursor2.getNext();
+        if (parsedQuery.joinBinaryOperator == EQUAL) {
+            // Two pointer approach
+            while (!row1.empty() && !row2.empty()) {
+                if (row1[col1] < row2[col2]) row1 = cursor1.getNext();
+                else if (row1[col1] > row2[col2]) row2 = cursor2.getNext();
+                else {
+                    // Different initializations of r1, r2 to avoid matching row1, row2 twice
+                    auto c1 = cursor1, c2 = cursor2;
+                    auto r1 = c1.getNext(), r2 = row2;
+                    vector<int> result;
+                    while (!r2.empty() && row1[col1] == r2[col2]) {
+                        result = row1;
+                        result.insert(result.end(), r2.begin(), r2.end());
+                        resultantTable->writeRow<int>(result);
+                        r2 = c2.getNext();
+                    }
+                    while (!r1.empty() && r1[col1] == row2[col2]) {
+                        result = r1;
+                        result.insert(result.end(), row2.begin(), row2.end());
+                        resultantTable->writeRow<int>(result);
+                        r1 = c1.getNext();
+                    }
+                    row1 = cursor1.getNext();
+                    row2 = cursor2.getNext();
                 }
-                copyCursor = cursor1;
-                vector<int> r1 = copyCursor.getNext();
-
-                while (!r1.empty() && r1[col1] == row2[col2]) {
-                    result = r1;
-                    result.insert(result.end(), row2.begin(), row2.end());
-                    resultantTable->writeRow<int>(result);
-                    r1 = copyCursor.getNext();
+            }
+        }
+        else {
+            while (!row1.empty()) {
+                // row2 corresponds to the first row greater than row1 (may be empty)
+                if (!row2.empty() && row1[col1] >= row2[col2]) row2 = cursor2.getNext();
+                else {
+                    auto a = table2->getCursor();
+                    vector<int> b = a.getNext(), result;
+                    auto iterate = [&] (Cursor& c, bool (*f)(int, int)) {
+                        while (!b.empty() && f(b[col2], row1[col1])) {
+                            result = row1;
+                            result.insert(result.end(), b.begin(), b.end());
+                            resultantTable->writeRow<int>(result);
+                            b = c.getNext();
+                        }
+                    };
+                    // Start from the beginning of table2, keep going while row2 < row1
+                    iterate(a, *comparators[0]);
+                    b = row2;
+                    // Start from position of row2, keep going till empty
+                    Cursor cc2 = cursor2;
+                    iterate(cc2, *comparators[1]);
+                    row1 = cursor1.getNext();
                 }
-                row1 = cursor1.getNext();
-                row2 = cursor2.getNext();
             }
         }
         resultantTable->blockify();
