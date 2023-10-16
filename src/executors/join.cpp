@@ -68,7 +68,15 @@ bool semanticParseJOIN()
 void executeJOIN()
 {
     logger.log("executeJOIN");
-
+    int rowsFilled = 0;
+    vector<vector<int>> rowBuffer;
+    auto writeRowBuffer = [&] (Table* table, const vector<int>& row) {
+        rowBuffer[rowsFilled++] = row;
+        if (rowsFilled == rowBuffer.size()) {
+            table->writeRows(rowBuffer, rowsFilled);
+            rowsFilled = 0;
+        }
+    };
     if (parsedQuery.joinBinaryOperator < 4) {
         // Table 1 doesn't need to be sorted, no advantage achieved
         auto* table1 = tableCatalogue.getTable(parsedQuery.joinFirstRelationName);
@@ -84,6 +92,9 @@ void executeJOIN()
         columns.insert(columns.end(), table2->columns.begin(), table2->columns.end());
 
         auto* resultantTable = new Table(parsedQuery.joinResultRelationName, columns);
+        tableCatalogue.insertTable(resultantTable);
+        rowBuffer.assign(resultantTable->maxRowsPerBlock, vector<int>(columns.size()));
+
         auto cursor1 = table1->getCursor();
         auto row1 = cursor1.getNext();
 
@@ -95,13 +106,13 @@ void executeJOIN()
             while (!row2.empty() && f(row1[col1], row2[col2])) {
                 result = row1;
                 result.insert(result.end(), row2.begin(), row2.end());
-                resultantTable->writeRow<int>(result);
+                writeRowBuffer(resultantTable, result);
                 row2 = cursor2.getNext();
             }
             row1 = cursor1.getNext();
         }
+        resultantTable->writeRows(rowBuffer, rowsFilled);
         resultantTable->blockify();
-        tableCatalogue.insertTable(resultantTable);
         tableCatalogue.deleteTable(table2->tableName);
     }
     else {
@@ -116,6 +127,8 @@ void executeJOIN()
         auto columns = table1->columns;
         columns.insert(columns.end(), table2->columns.begin(), table2->columns.end());
         auto* resultantTable = new Table(parsedQuery.joinResultRelationName, columns);
+        tableCatalogue.insertTable(resultantTable);
+        rowBuffer.assign(resultantTable->maxRowsPerBlock, vector<int>(columns.size()));
 
         auto cursor1 = table1->getCursor(), cursor2 = table2->getCursor();
         auto row1 = cursor1.getNext(), row2 = cursor2.getNext();
@@ -132,13 +145,13 @@ void executeJOIN()
                     while (!r2.empty() && row1[col1] == r2[col2]) {
                         result = row1;
                         result.insert(result.end(), r2.begin(), r2.end());
-                        resultantTable->writeRow<int>(result);
+                        writeRowBuffer(resultantTable, result);
                         r2 = c2.getNext();
                     }
                     while (!r1.empty() && r1[col1] == row2[col2]) {
                         result = r1;
                         result.insert(result.end(), row2.begin(), row2.end());
-                        resultantTable->writeRow<int>(result);
+                        writeRowBuffer(resultantTable, result);
                         r1 = c1.getNext();
                     }
                     row1 = cursor1.getNext();
@@ -157,7 +170,7 @@ void executeJOIN()
                         while (!b.empty() && f(b[col2], row1[col1])) {
                             result = row1;
                             result.insert(result.end(), b.begin(), b.end());
-                            resultantTable->writeRow<int>(result);
+                            writeRowBuffer(resultantTable, result);
                             b = c.getNext();
                         }
                     };
@@ -171,8 +184,8 @@ void executeJOIN()
                 }
             }
         }
+        resultantTable->writeRows(rowBuffer, rowsFilled);
         resultantTable->blockify();
-        tableCatalogue.insertTable(resultantTable);
         tableCatalogue.deleteTable(table2->tableName);
         tableCatalogue.deleteTable(table1->tableName);
 
