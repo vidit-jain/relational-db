@@ -172,7 +172,57 @@ For both the above phase, we list some of the implementation details in the foll
   - Another implementation detail to be noted is obtaining the next row for each run in a particular merge phase stage after the top element from the priority queue is extracted. To facilitate this, we store the cursors to the runs along with the actual row in the priority queues (or rather, the corresponding index). We also keep a track of the number of rows that we have read from a particular run. This tells us whether a cursor should be queried for the next row.
 
 ## ORDER_BY command
+### Error Handling
+1. Syntactic - We ensure that the ORDER BY query has 8 tokens, and that it is of the form `<new_table> <- ORDER BY <attribute> ASC|DESC ON <table_name>`.
+   We check if the tokens in the given query match the format of the GROUP BY command and parse the necessary tokens, we also make sure that the order is "ASC" or "DESC". 
+2. Semantic - We check that `<new_table>` doesn't already exist, the table `<table_name>` is a table that exists, and `<attribute>` is a valid column in the table.
+
+### Implementation
+Once `SORT` was implemented, `ORDER_BY` was straightforward to implement. We added a parameter in the sort which allows a table feed off of pages of another table and sort them, which allows us to create a new table, and feed it the sorted pages of the original table, without affecting the original one.
+
 ## JOIN command
+### Error Handling
+1. Syntactic - We ensured the syntax was of the form `<new_relation_name> <- JOIN <tablename1>, <tablename2> ON <column1> <bin_op> <column2>`. This included checking if the number of tokens could be valid for some number of attributes. 
+   We check if the tokens in the given query match the format of the GROUP BY command and parse the necessary tokens, and ensure the binary operator specified is valid.
+2. Semantic - We check that `<new_relation_name>` doesn't already exist as a table, `<tablename1>`, `<tablename2>` are valid tables, and `<column1>`, `<column2>` are valid columns in their respective tables.
+### Implementation
+
+There were 3 different implementations of JOIN, based on the binary operator used
+#### `==` operator
+To process a join on the `==` binary operator, it required to first make a temporary copy of each of the tables we are joining, and sort each one of them on the concerned attribute using the external sort we implemented earlier
+
+Once that was completed, we ran a two pointer approach on the tables using Cursor objects on each of them. 
+1. Check which table is on a row with a smaller value for the attribute, and increment its cursor object. Repeat until they are equal. 
+2. Create a copy of the Cursor object of table2, increment it and insert a new row in the join table until the column values don't match. 
+3. Similarly, match all the rows in table2 equal to the current row in table1. 
+4. Once complete, we increment both cursors.
+
+This approach takes advantage of the sorted table as for a certain row, we don't need to go through the entire table to find all the matches, and our search space is a lot more limited.
+
+#### `!=` operator
+In this operator join too, we sort the tables in ascending order, and use a two pointer approach.
+In this two pointer approach however, we keep track of the smallest index row in table2 which is greater than the current row in table1. This allows us to find out what all rows the current row in table1 can match with. There are a few parts in this algorithm
+1. Increment Cursor for table1, and increment Cursor for table2 until `row1[col1] < row2[col2]` becomes true.
+2. Make a new cursor for table2 which starts from the beginning, and increment and insert rows into join table until `row1[col1] == row2[col2]`
+3. Create another copy, which is the copy of the current cursor of table2, and run it till the end, inserting the concatenated row in the join table for each row.
+4. Go to step 1
+
+This also takes advantage of the sorted table as we skip going over the rows where the values match, which provides a significant improvement in case there are many rows in each table which have equal values on the attribute.
+#### `>`, `>=`, `<`, `<=` operator
+First, we note that it's only necessary to sort one of the tables, there is no benefit of sorting both of them in the case of these binary operators.
+
+Hence, we sort the second table in ascending order if `binary_operator = >/>=` and descending order if otherwise.
+
+The algorithm is simplified to this
+
+1. Increment the cursor for table1, and increment it.
+2. Create a new cursor for table2 from the start, and keep matching until the binary operator specified doesn't hold true.
+3. Go to step 1
+
+To avoid implementing multiple versions for each of the conditions, I made use of function pointers to define the binary operator and decided the order to sort based on it as well, making the code have less redundancy
+
+As the second table is sorted, we'll only increment until we get rows that we must insert into the table, hence we don't make unnecessary comparisons between rows.
+
 ## GROUP_BY command
 ### Error Handling
 1. Syntactic - We ensure that the GROUP BY query has 13 tokens, and that it is of the form `<new_table> <- GROUP BY <grouping_attribute> FROM <table_name> HAVING <aggregate(attribute)> <bin_op> <attribute_value> RETURN <aggregate_func(attribute)>`.
