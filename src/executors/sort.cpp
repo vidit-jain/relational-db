@@ -11,7 +11,7 @@ bool syntacticParseSORT() {
     logger.log("syntacticParseSORT");
     auto numTokens = tokenizedQuery.size(), numSortColumns = (numTokens - 4) / 2;
     auto IN_idx = numSortColumns + 3;
-    if (tokenizedQuery[2] != "BY" || numTokens < 6 || (numTokens - 4) % 2 || tokenizedQuery[IN_idx] != "IN") {
+    if (numTokens < 6 || tokenizedQuery[2] != "BY" || (numTokens - 4) % 2 || tokenizedQuery[IN_idx] != "IN") {
         cout << "SYNTAX ERROR" << endl;
         return false;
     }
