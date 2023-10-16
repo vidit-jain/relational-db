@@ -11,6 +11,7 @@ Page::Page() {
     this->rowCount = 0;
     this->columnCount = 0;
     this->dirty = 0;
+    this->deleted = 0;
     this->rows.clear();
 }
 
@@ -29,6 +30,7 @@ Page::Page() {
 Page::Page(string tableName, int pageIndex, datatype d) {
     logger.log("Page::Page");
     this->dirty = 0;
+    this->deleted = 0;
     this->tableName = tableName;
     this->pageIndex = pageIndex;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
@@ -100,6 +102,8 @@ Page::Page(string tableName, int pageIndex, vector<vector<int>> rows, int rowCou
     this->columnCount = colCount;
     this->tableName = tableName;
     this->pageName = "../data/temp/" + this->tableName + "_Page" + to_string(pageIndex);
+    this->dirty = 0;
+    this->deleted = 0;
 }
 
 /**
@@ -183,6 +187,13 @@ bool Page::isDirty() {
 }
 
 /**
+ * @brief returns if a page is deleted or not (has been deleted on disk)
+ */
+bool Page::isDeleted() {
+    return this->deleted;
+}
+
+/**
  * @brief returns the table name the page belongs to.
  */
 string Page::getTableName() {
@@ -201,4 +212,12 @@ void Page::modifyPage(const vector<vector<int>> &newRows, int newRowCount, int n
     rows.resize(rowCount);
     for (int r = 0; r < rowCount; r++) rows[r] = newRows[r];
     dirty = 1;
+}
+
+/**
+ * @brief Sets the deleted flag of the page
+ * @return
+ */
+void Page::setDeleted() {
+    deleted = 1;
 }

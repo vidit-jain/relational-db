@@ -32,7 +32,7 @@ Page *BufferManager::getPage(string tableName, int pageIndex, datatype d) {
 bool BufferManager::inPool(string pageName) {
     logger.log("BufferManager::inPool");
     for (auto page: this->pages) {
-        if (pageName == page.pageName)
+        if (pageName == page.pageName and !page.isDeleted())
             return true;
     }
     return false;
@@ -67,7 +67,7 @@ Page *BufferManager::insertIntoPool(string tableName, int pageIndex, datatype d)
     this->blocksRead++;
     Page page(tableName, pageIndex, d);
     if (this->pages.size() >= BLOCK_COUNT) {
-        if (pages.front().isDirty()) {
+        if (!pages.front().isDeleted() and pages.front().isDirty()) {
             pages.front().writePage();
             this->blocksWritten++;
         }
@@ -133,8 +133,11 @@ void BufferManager::renameFile(string oldName, string newName) {
  */
 
 void BufferManager::renamePagesInMemory(string oldName, string newName) {
+    assert(oldName != newName); //Should never occur. Sanity check
     for (auto &page: this->pages) {
-        if (page.getTableName() == oldName)
+        if (page.getTableName() == newName)
+            page.setDeleted();
+        else if (page.getTableName() == oldName)
             page.setPageName(newName);
     }
 }

@@ -221,5 +221,5 @@ void executeGROUPBY() {
 
     resultantTable->blockify();
     tableCatalogue.insertTable(resultantTable);
-    tableCatalogue.deleteTable(tempTableName);
+//    tableCatalogue.deleteTable(tempTableName);
 }
