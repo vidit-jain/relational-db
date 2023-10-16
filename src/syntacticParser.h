@@ -9,6 +9,7 @@ enum QueryType
     CROSS,
     DISTINCT,
     EXPORT,
+    GROUPBY,
     INDEX,
     JOIN,
     LIST,
@@ -21,25 +22,35 @@ enum QueryType
     SOURCE,
     SYMMETRY,
     TRANSPOSE,
+    ORDERBY,
     UNDETERMINED
+};
+
+enum AggregateFunction
+{
+    MIN = 0,
+    MAX = 1,
+    SUM = 2,
+    AVG = 3,
+    NO_AGG_FUNC
 };
 
 enum BinaryOperator
 {
-    LESS_THAN,
-    GREATER_THAN,
-    LEQ,
-    GEQ,
-    EQUAL,
-    NOT_EQUAL,
+    LESS_THAN = 0,
+    GREATER_THAN = 1,
+    LEQ = 2,
+    GEQ = 3,
+    EQUAL = 4,
+    NOT_EQUAL = 5,
     NO_BINOP_CLAUSE
 };
 
 enum SortingStrategy
 {
-    ASC,
-    DESC,
-    NO_SORT_CLAUSE
+    ASC = 1,
+    DESC = -1,
+    NO_SORT_CLAUSE = 0
 };
 
 enum SelectType
@@ -66,6 +77,16 @@ public:
     string distinctRelationName = "";
 
     string exportRelationName = "";
+
+    string groupByResultantRelationName = "";
+    string groupByGroupingAttribute = "";
+    string groupByRelationName = "";
+    string groupByHavingAttribute = "";
+    AggregateFunction groupByHavingAggregateFunction = NO_AGG_FUNC;
+    BinaryOperator groupByBinaryOperator = NO_BINOP_CLAUSE;
+    int groupByAttributeValue = 0;
+    AggregateFunction groupByReturnAggregateFunction = NO_AGG_FUNC;
+    string groupByReturnAttribute = "";
 
     IndexingStrategy indexingStrategy = NOTHING;
     string indexColumnName = "";
@@ -98,10 +119,14 @@ public:
     string selectionSecondColumnName = "";
     int selectionIntLiteral = 0;
 
-    SortingStrategy sortingStrategy = NO_SORT_CLAUSE;
-    string sortResultRelationName = "";
-    string sortColumnName = "";
+    vector<SortingStrategy> sortingStrategies;
+    vector<string> sortColumnNames;
     string sortRelationName = "";
+
+    string orderByRelationName = "";
+    string orderByResultantRelationName = "";
+    string orderByColumnName = "";
+    SortingStrategy orderByMultiplier = NO_SORT_CLAUSE;
 
     string sourceFileName = "";
     string loadMatrixName = "";
@@ -122,6 +147,7 @@ bool syntacticParseCLEAR();
 bool syntacticParseCROSS();
 bool syntacticParseDISTINCT();
 bool syntacticParseEXPORT();
+bool syntacticParseGROUPBY();
 bool syntacticParseINDEX();
 bool syntacticParseJOIN();
 bool syntacticParseLIST();
@@ -135,6 +161,7 @@ bool syntacticParseSOURCE();
 bool syntacticParseSYMMETRY();
 bool syntacticParseTRANSPOSE();
 bool syntacticParseCOMPUTE();
+bool syntacticParseORDERBY();
 
 bool isFileExists(string tableName);
 bool isQueryFile(string fileName);

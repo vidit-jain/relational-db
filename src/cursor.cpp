@@ -1,5 +1,8 @@
 #include "global.h"
 
+
+Cursor::Cursor() = default;
+
 Cursor::Cursor(string tableName, int pageIndex, datatype d)
 {
     logger.log("Cursor::Cursor");
@@ -57,3 +60,4 @@ void Cursor::nextPage(int pageIndex)
     this->pageIndex = pageIndex;
     this->pagePointer = 0;
 }
+

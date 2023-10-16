@@ -33,12 +33,14 @@ public:
     bool indexed = false;
     string indexedColumn = "";
     IndexingStrategy indexingStrategy = NOTHING;
-    
+    map<string, int> colNameToIdx;
+
     bool extractColumnNames(string firstLine);
     bool blockify();
     void updateStatistics(vector<int> row);
     Table();
     Table(string tableName);
+    Table(string tableName, Table *originalTable);
     Table(string tableName, vector<string> columns);
     bool load();
     bool isColumn(string columnName);
@@ -49,7 +51,13 @@ public:
     void getNextPage(Cursor *cursor);
     Cursor getCursor();
     int getColumnIndex(string columnName);
+    vector<int> getColumnIndex(const vector<string> &columnNames);
     void unload();
+    void sort(const vector<string> &colNames, const vector<int> &colMultipliers, const string& originalTableName);
+    void sort(const std::string &colName, int colMultiplier, const string& originalTableName);
+    void sortingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers, const string& originalTableName);
+    void mergingPhase(const vector<int> &colIndices, const vector<int> &colMultipliers);
+    void rename(const string &newName);
 
     /**
  * @brief Static function that takes a vector of valued and prints them out in a
@@ -86,4 +94,20 @@ void writeRow(vector<T> row)
     this->writeRow(row, fout);
     fout.close();
 }
+
+/**
+ * @brief Static function that takes a vector of valued and prints them out in a
+ * comma seperated format.
+ *
+ * @tparam T current usaages include int and string
+ * @param row
+ */
+    template <typename T>
+    void writeRows(const vector<vector<T>>& rows, const int rowCount)
+    {
+        logger.log("Table::printRow");
+        ofstream fout(this->sourceFileName, ios::app);
+        for (int i = 0; i < rowCount; i++) this->writeRow(rows[i], fout);
+        fout.close();
+    }
 };

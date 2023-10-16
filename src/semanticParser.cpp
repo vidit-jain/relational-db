@@ -7,6 +7,7 @@ bool semanticParse(){
         case CROSS: return semanticParseCROSS();
         case DISTINCT: return semanticParseDISTINCT();
         case EXPORT: return semanticParseEXPORT();
+        case GROUPBY: return semanticParseGROUPBY();
         case INDEX: return semanticParseINDEX();
         case JOIN: return semanticParseJOIN();
         case LIST: return semanticParseLIST();
@@ -20,6 +21,7 @@ bool semanticParse(){
         case SYMMETRY: return semanticParseSYMMETRY();
         case TRANSPOSE: return semanticParseTRANSPOSE();
         case COMPUTE: return semanticParseCOMPUTE();
+        case ORDERBY: return semanticParseORDERBY();
         default: cout<<"SEMANTIC ERROR"<<endl;
     }
 

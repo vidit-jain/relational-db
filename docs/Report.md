@@ -1,4 +1,6 @@
-## Report (Phase 1)
+# Project Report 
+# Phase 1 - Implementing Matrices
+
 ## Initial Page Design
 To store the matrices as pages, we initially thought of imagining the matrix as just a linear array of N x N integers.
 If a block could store say x integers (In the default configuration it's 1000/4 = 250), it would store 250 integers in
@@ -63,7 +65,7 @@ This was implemented in the pre-existing EXPORT command that was implemented for
 ### Error Handling
 1. Syntactic - We ensure that if the EXPORT query has 3 tokens, the second one is "MATRIX", and we then take the third token as the name of the matrix to be exported.
 2. Semantic - We first check if the matrix exists in the catalogue, else print an error.
-## Implementation
+### Implementation
 This implementation is very similar to how we print matrices, and the saving of it on disk is largely similar to how tables are made permanent.
 We iterate through M rows at a time in this as well, write down each block in the row, and then write the rows to the output stream.
 ## RENAME 
@@ -71,13 +73,13 @@ This was implemented in the pre-existing RENAME command that was implemented for
 ### Error Handling
 1. Syntactic - We ensure that if the RENAME query has 4 tokens, the second one is "MATRIX", and we then take the third token as the name of the matrix to be renamed, and the fourth as the new name.
 2. Semantic - We first check if the matrix exists in the catalogue, and the new name of the matrix doesn't already exist in it.
-## Implementation
+### Implementation
 We update the map that keeps track of the matrices, and then call a function in matrix to rename. It renames the matrix, and all the files on disk as well as in memory, using functions that we implemented in the Buffer Manager.
 ## CHECKSYMMETRY 
 ### Error Handling
 1. Syntactic - We ensure that if the CHECKSYMMETRY query has 2 tokens, and we take the second token as the matrix to check for symmetry. 
 2. Semantic - We first check if the matrix exists in the catalogue. 
-## Implementation
+### Implementation
 The implementation of this is quite straightforward, as we just iterated through the blocks in the matrix in a pairwise-fashion, and check if they are symmetric.
 It returns false as soon as it's found to be asymmetric, else returns true.
 
@@ -86,7 +88,7 @@ If checked earlier, we store the symmetry result in the matrix to avoid redundan
 ### Error Handling
 1. Syntactic - We ensure that if the COMPUTE query has 2 tokens, and we take the second token as the matrix to compute.
 2. Semantic - We first check if the matrix exists in the catalogue, else print an error.
-## Implementation
+### Implementation
 We first create a new Matrix, which has the same details as the matrix it is being copied from, but no pages are copied. Then, we call a function
 compute in matrix, that retrieves the page of the original matrix, creates a copy, performs the operation, and then writes it as its own, leaving the original matrix pages unchanged.
 
@@ -115,7 +117,9 @@ Based on the input size, these were the block read + writes for each command
 
 ## Contributions
 Vidit - Implemented the Matrix, LOAD and CHECKSYMMETRY functionality, and the necessary changes in other files.
+
 Dheeraja - Implemented TRANSPOSE, COMPUTE and PRINT, and the necessary changes in other files to carry out this implementation.
+
 Pramod - Implemented RENAME, EXPORT, COMPUTE.
 
 The page design and overall structure of the project phase was done by everyone together.

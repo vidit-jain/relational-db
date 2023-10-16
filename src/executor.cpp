@@ -8,6 +8,7 @@ void executeCommand(){
         case CROSS: executeCROSS(); break;
         case DISTINCT: executeDISTINCT(); break;
         case EXPORT: executeEXPORT(); break;
+        case GROUPBY: executeGROUPBY(); break;
         case INDEX: executeINDEX(); break;
         case JOIN: executeJOIN(); break;
         case LIST: executeLIST(); break;
@@ -20,6 +21,7 @@ void executeCommand(){
         case SOURCE: executeSOURCE(); break;
         case SYMMETRY: executeSYMMETRY(); break;
         case TRANSPOSE: executeTRANSPOSE(); break;
+        case ORDERBY: executeORDERBY(); break;
         default: cout<<"PARSING ERROR"<<endl;
     }
 

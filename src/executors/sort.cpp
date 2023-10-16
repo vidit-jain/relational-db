@@ -1,56 +1,57 @@
 #include"global.h"
+
 /**
  * @brief File contains method to process SORT commands.
  * 
  * syntax:
- * R <- SORT relation_name BY column_name IN sorting_order
- * 
- * sorting_order = ASC | DESC 
+ * SORT <table_name> BY <column_name1, column_name2,..., column_namek> IN <ASC|DESC, ASC|DESC,..., ASC|DESC>
+ *
  */
-bool syntacticParseSORT(){
+bool syntacticParseSORT() {
     logger.log("syntacticParseSORT");
-    if(tokenizedQuery.size()!= 8 || tokenizedQuery[4] != "BY" || tokenizedQuery[6] != "IN"){
-        cout<<"SYNTAX ERROR"<<endl;
+    auto numTokens = tokenizedQuery.size(), numSortColumns = (numTokens - 4) / 2;
+    auto IN_idx = numSortColumns + 3;
+    if (numTokens < 6 || tokenizedQuery[2] != "BY" || (numTokens - 4) % 2 || tokenizedQuery[IN_idx] != "IN") {
+        cout << "SYNTAX ERROR" << endl;
         return false;
     }
+    for (auto i = IN_idx + 1; i < numTokens; i++)
+        if (tokenizedQuery[i] != "ASC" && tokenizedQuery[i] != "DESC") {
+            cout << "SYNTAX ERROR" << endl;
+            return false;
+        }
     parsedQuery.queryType = SORT;
-    parsedQuery.sortResultRelationName = tokenizedQuery[0];
-    parsedQuery.sortRelationName = tokenizedQuery[3];
-    parsedQuery.sortColumnName = tokenizedQuery[5];
-    string sortingStrategy = tokenizedQuery[7];
-    if(sortingStrategy == "ASC")
-        parsedQuery.sortingStrategy = ASC;
-    else if(sortingStrategy == "DESC")
-        parsedQuery.sortingStrategy = DESC;
-    else{
-        cout<<"SYNTAX ERROR"<<endl;
-        return false;
+    parsedQuery.sortRelationName = tokenizedQuery[1];
+    for (auto i = 0; i < numSortColumns; i++) {
+        parsedQuery.sortingStrategies.push_back((tokenizedQuery[IN_idx + 1 + i] == "ASC") ? ASC : DESC);
+        parsedQuery.sortColumnNames.push_back(tokenizedQuery[3 + i]);
     }
     return true;
 }
 
-bool semanticParseSORT(){
+bool semanticParseSORT() {
     logger.log("semanticParseSORT");
 
-    if(tableCatalogue.isTable(parsedQuery.sortResultRelationName)){
-        cout<<"SEMANTIC ERROR: Resultant relation already exists"<<endl;
+    if (!tableCatalogue.isTable(parsedQuery.sortRelationName)) {
+        cout << "SEMANTIC ERROR: Relation doesn't exist" << endl;
         return false;
     }
 
-    if(!tableCatalogue.isTable(parsedQuery.sortRelationName)){
-        cout<<"SEMANTIC ERROR: Relation doesn't exist"<<endl;
-        return false;
-    }
-
-    if(!tableCatalogue.isColumnFromTable(parsedQuery.sortColumnName, parsedQuery.sortRelationName)){
-        cout<<"SEMANTIC ERROR: Column doesn't exist in relation"<<endl;
-        return false;
+    for (const auto &col: parsedQuery.sortColumnNames) {
+        if (!tableCatalogue.isColumnFromTable(col, parsedQuery.sortRelationName)) {
+            cout << "SEMANTIC ERROR: One or more columns do not exist in relation" << endl;
+            return false;
+        }
     }
 
     return true;
 }
 
-void executeSORT(){
+void executeSORT() {
     logger.log("executeSORT");
-    return;
+
+    Table *table = tableCatalogue.getTable(parsedQuery.sortRelationName);
+    vector<int> colMultipliers(parsedQuery.sortingStrategies.size());
+    for (int i = 0; i < parsedQuery.sortingStrategies.size(); i++) colMultipliers[i] = parsedQuery.sortingStrategies[i];
+    table->sort(parsedQuery.sortColumnNames, colMultipliers, parsedQuery.sortRelationName);
 }

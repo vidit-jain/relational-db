@@ -15,6 +15,18 @@ void TableCatalogue::deleteTable(string tableName)
 {
     logger.log("TableCatalogue::deleteTable"); 
     this->tables[tableName]->unload();
+    eraseTable(tableName);
+}
+
+
+/**
+ * Erases the table entry in the catalogue without unloading the table
+ *
+ * @param tableName
+ */
+void TableCatalogue::eraseTable(std::string tableName)
+{
+    logger.log("TableCatalogue::eraseTable");
     delete this->tables[tableName];
     this->tables.erase(tableName);
 }

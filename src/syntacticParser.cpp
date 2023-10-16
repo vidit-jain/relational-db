@@ -33,6 +33,8 @@ bool syntacticParse()
         return syntacticParseTRANSPOSE();
     else if(possibleQueryType == "COMPUTE")
         return syntacticParseCOMPUTE();
+    else if(possibleQueryType == "SORT")
+        return syntacticParseSORT();
     else
     {
         string resultantRelationName = possibleQueryType;
@@ -52,8 +54,10 @@ bool syntacticParse()
             return syntacticParseCROSS();
         else if (possibleQueryType == "DISTINCT")
             return syntacticParseDISTINCT();
-        else if (possibleQueryType == "SORT")
-            return syntacticParseSORT();
+        else if(possibleQueryType == "ORDER")
+            return syntacticParseORDERBY();
+        else if(possibleQueryType == "GROUP")
+            return syntacticParseGROUPBY();
         else
         {
             cout << "SYNTAX ERROR" << endl;
@@ -82,6 +86,16 @@ void ParsedQuery::clear()
     this->distinctRelationName = "";
 
     this->exportRelationName = "";
+
+    this->groupByResultantRelationName = "";
+    this->groupByGroupingAttribute = "";
+    this->groupByRelationName = "";
+    this->groupByHavingAttribute = "";
+    this->groupByHavingAggregateFunction = NO_AGG_FUNC;
+    this->groupByBinaryOperator = NO_BINOP_CLAUSE;
+    this->groupByAttributeValue = 0;
+    this->groupByReturnAggregateFunction = NO_AGG_FUNC;
+    this->groupByReturnAttribute = "";
 
     this->indexingStrategy = NOTHING;
     this->indexColumnName = "";
@@ -114,10 +128,14 @@ void ParsedQuery::clear()
     this->selectionSecondColumnName = "";
     this->selectionIntLiteral = 0;
 
-    this->sortingStrategy = NO_SORT_CLAUSE;
-    this->sortResultRelationName = "";
-    this->sortColumnName = "";
+    this->sortingStrategies.clear();
+    this->sortColumnNames.clear();
     this->sortRelationName = "";
+
+    this->orderByRelationName = "";
+    this->orderByResultantRelationName = "";
+    this->orderByColumnName = "";
+    this->orderByMultiplier = NO_SORT_CLAUSE;
 
     this->sourceFileName = "";
     this->sourceFileName = "";
