@@ -6,6 +6,7 @@ bool semanticParseCLEAR();
 bool semanticParseCROSS();
 bool semanticParseDISTINCT();
 bool semanticParseEXPORT();
+bool semanticParseGROUPBY();
 bool semanticParseINDEX();
 bool semanticParseJOIN();
 bool semanticParseLIST();

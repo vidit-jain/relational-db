@@ -3,11 +3,8 @@
  * @brief 
  * SYNTAX: R <- JOIN relation_name1, relation_name2 ON column_name1 bin_op column_name2
  */
-bool lesser_than(int x, int y) { return x < y; }
-bool greater_than(int x, int y) { return x > y; }
-bool leq(int x, int y) { return x <= y; }
-bool geq(int x, int y) { return x >= y; }
-bool (*comparators[4])(int, int) = {lesser_than, greater_than, leq, geq};
+extern bool (*comparators[])(int, int);
+
 bool syntacticParseJOIN()
 {
     logger.log("syntacticParseJOIN");

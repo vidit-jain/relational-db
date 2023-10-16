@@ -9,6 +9,7 @@ enum QueryType
     CROSS,
     DISTINCT,
     EXPORT,
+    GROUPBY,
     INDEX,
     JOIN,
     LIST,
@@ -25,14 +26,23 @@ enum QueryType
     UNDETERMINED
 };
 
+enum AggregateFunction
+{
+    MIN = 0,
+    MAX = 1,
+    SUM = 2,
+    AVG = 3,
+    NO_AGG_FUNC
+};
+
 enum BinaryOperator
 {
-    LESS_THAN,
-    GREATER_THAN,
-    LEQ,
-    GEQ,
-    EQUAL,
-    NOT_EQUAL,
+    LESS_THAN = 0,
+    GREATER_THAN = 1,
+    LEQ = 2,
+    GEQ = 3,
+    EQUAL = 4,
+    NOT_EQUAL = 5,
     NO_BINOP_CLAUSE
 };
 
@@ -67,6 +77,16 @@ public:
     string distinctRelationName = "";
 
     string exportRelationName = "";
+
+    string groupByResultantRelationName = "";
+    string groupByGroupingAttribute = "";
+    string groupByRelationName = "";
+    string groupByHavingAttribute = "";
+    AggregateFunction groupByHavingAggregateFunction = NO_AGG_FUNC;
+    BinaryOperator groupByBinaryOperator = NO_BINOP_CLAUSE;
+    int groupByAttributeValue = 0;
+    AggregateFunction groupByReturnAggregateFunction = NO_AGG_FUNC;
+    string groupByReturnAttribute = "";
 
     IndexingStrategy indexingStrategy = NOTHING;
     string indexColumnName = "";
@@ -127,6 +147,7 @@ bool syntacticParseCLEAR();
 bool syntacticParseCROSS();
 bool syntacticParseDISTINCT();
 bool syntacticParseEXPORT();
+bool syntacticParseGROUPBY();
 bool syntacticParseINDEX();
 bool syntacticParseJOIN();
 bool syntacticParseLIST();
