@@ -133,6 +133,22 @@ We collaborated using LiveShare, as we were in different locations and made comm
 ## ORDER_BY command
 ## JOIN command
 ## GROUP_BY command
+### Error Handling
+1. Syntactic - We ensure that the GROUP BY query has 13 tokens, and that it is of the form `<new_table> <- GROUP BY <grouping_attribute> FROM <table_name> HAVING <aggregate(attribute)> <bin_op> <attribute_value> RETURN <aggregate_func(attribute)>`.
+We check if the tokens in the given query match the format of the GROUP BY command and parse the necessary tokens. We also check here that the `<attribute>` value token is an integer value.
+2. Semantic - We first check if the `<table_name>` token corresponds to an already loaded table, and that it contains the attributes specified for the grouping_attribute, the having clause and the return clause are valid attributes of the table specified by `<table_name>`. We further ensure that `<new_table>` does not already exist in the table catalogue.
+### Implementation
+We first make a copy of the original table into a temporary table named `"Temp_GROUP_BY_" + <table_name>`, and sort it by the grouping attribute.
+Once it is sorted, all the rows that contain a common value for the grouping attribute now occur contiguously. So we iterate over the rows and for each set of contiguous rows having the same value of the grouping attribute, we accumulate the values of the attributes in the `HAVING` and `RETURN` clauses as specified by their respective aggregate functions.
+When all the rows corresponding to a specific grouping attribute value have been accumulated in this way, we check if the aggregate value of the attribute matches that specified by the `HAVING` clause. Only if the constraint set by the `HAVING` clause is satisfied, the aggregate value of the attribute in the `RETURN` clause is written to the final resultant table.
+
+We use function pointers to implement the binary operator in the `HAVING` clause. We have the enum type `BinaryOperator` to represent binary operators.
+For each binary operator `<bin_op>`, we have defined a function that takes in two integers x and y and returns true if and only if `a <bin_op> b` is true. ie, for `<bin_op>` = `>=`, we have a function `geq` that returns true iff `a >= b`. We then make an array of pointers to these functions such that the array can be indexed by the enum value of each binary operator to get the appropriate function.
+This same array is used to fetch the appropriate comparator for the `JOIN` command as well.
+
+Similarly, we also have an enum type `AggregateFunction` to represent the aggregate functions min, max, sum and avg. As we iterate over the rows of a group, we accumulate the values of the required attributes using an appropriate function. For min and max, we accumulate using the min and max functions themselves. For sum and avg, we accumulate the sum of the attributes. In order to get the average, we simply divide this sum by the number of entries in that group.
+Like the function pointers for the binary operators, we have a similar array of function pointers to these aggregate functions that can be indexed using the enum values.
+
 ## Assumptions
 ## Learnings
 ## Contributions
