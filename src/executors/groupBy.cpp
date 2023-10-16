@@ -53,7 +53,7 @@ bool syntacticParseGROUPBY() {
     logger.log("syntacticParseGROUPBY");
     auto numTokens = tokenizedQuery.size();
 
-    if(tokenizedQuery[3] != "BY" || tokenizedQuery[5] != "FROM" || tokenizedQuery[7] != "HAVING" || tokenizedQuery[11] != "RETURN") {
+    if(numTokens != 13 || tokenizedQuery[3] != "BY" || tokenizedQuery[5] != "FROM" || tokenizedQuery[7] != "HAVING" || tokenizedQuery[11] != "RETURN") {
         cout << "SYNTAX ERROR" << endl;
         return false;
     }
@@ -221,5 +221,5 @@ void executeGROUPBY() {
 
     resultantTable->blockify();
     tableCatalogue.insertTable(resultantTable);
-//    tableCatalogue.deleteTable(tempTableName);
+    tableCatalogue.deleteTable(tempTableName);
 }
