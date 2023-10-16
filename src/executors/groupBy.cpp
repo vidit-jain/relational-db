@@ -158,6 +158,8 @@ void executeGROUPBY() {
     tableCatalogue.insertTable(tempTable);
     tempTable->sort(parsedQuery.groupByGroupingAttribute, ASC, parsedQuery.groupByRelationName);
 
+    logger.log("sort done");
+
     const BinaryOperator binaryOperator = parsedQuery.groupByBinaryOperator;
     const AggregateFunction havingAggregateFunction = parsedQuery.groupByHavingAggregateFunction;
     const AggregateFunction returnAggregateFunction = parsedQuery.groupByReturnAggregateFunction;
@@ -166,7 +168,6 @@ void executeGROUPBY() {
     const int havingAttribute = tempTable->getColumnIndex(parsedQuery.groupByHavingAttribute);
     const int returnAttribute = tempTable->getColumnIndex(parsedQuery.groupByReturnAttribute);
     string aggregateOutputColumnName;
-    const int aggregateOutputColumn = 1;
 
     if (returnAggregateFunction == MIN)
         aggregateOutputColumnName = "MIN" + parsedQuery.groupByReturnAttribute;
@@ -181,6 +182,8 @@ void executeGROUPBY() {
 
     Cursor cursor = tempTable->getCursor();
     vector<int> row = cursor.getNext();
+    vector<vector<int>> rowsToWrite(resultantTable->maxRowsPerBlock, vector<int>(resultantTable->columnCount));
+    int numRowsToWrite = 0;
     int prevGroup = row[groupingAttribute];
     long long accum = row[havingAttribute];
     long long ret = row[returnAttribute];
@@ -201,7 +204,11 @@ void executeGROUPBY() {
                 ret /= numRowsInGroup;
             vector<int> resultantRow {prevGroup, (int) ret};
             if (comparators[binaryOperator](accum, val)) {
-                resultantTable->writeRow(resultantRow);
+                rowsToWrite[numRowsToWrite++] = resultantRow;
+                if(numRowsToWrite == resultantTable->maxRowsPerBlock) {
+                    resultantTable->writeRows(rowsToWrite, numRowsToWrite);
+                    numRowsToWrite = 0;
+                }
             }
 
             prevGroup = row[groupingAttribute];
@@ -216,8 +223,10 @@ void executeGROUPBY() {
         ret /= numRowsInGroup;
     vector<int> resultantRow {prevGroup, (int) ret};
     if (comparators[binaryOperator](accum, val)) {
-        resultantTable->writeRow(resultantRow);
+        rowsToWrite[numRowsToWrite++] = resultantRow;
     }
+    if (numRowsToWrite)
+        resultantTable->writeRows(rowsToWrite, numRowsToWrite);
 
     resultantTable->blockify();
     tableCatalogue.insertTable(resultantTable);
