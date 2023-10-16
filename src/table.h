@@ -94,4 +94,20 @@ void writeRow(vector<T> row)
     this->writeRow(row, fout);
     fout.close();
 }
+
+/**
+ * @brief Static function that takes a vector of valued and prints them out in a
+ * comma seperated format.
+ *
+ * @tparam T current usaages include int and string
+ * @param row
+ */
+    template <typename T>
+    void writeRows(const vector<vector<T>>& rows, const int rowCount)
+    {
+        logger.log("Table::printRow");
+        ofstream fout(this->sourceFileName, ios::app);
+        for (int i = 0; i < rowCount; i++) this->writeRow(rows[i], fout);
+        fout.close();
+    }
 };
